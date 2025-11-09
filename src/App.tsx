@@ -1,8 +1,10 @@
+import { Text, View } from "reshaped";
+
 function App() {
   return (
-    <main>
-      <h1>Chandan Hisab</h1>
-    </main>
+    <View gap={3} align="center" justify="center" height="100vh">
+      <Text variant="title-1">Chandan Hisab</Text>
+    </View>
   );
 }
 
