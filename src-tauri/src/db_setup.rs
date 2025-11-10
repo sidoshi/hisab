@@ -1,11 +1,8 @@
 use std::path::PathBuf;
-use std::sync::Arc;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, plugin::Plugin};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogResult};
 use tauri_plugin_sql::Builder;
-use tokio::sync::Mutex;
-
-pub struct DatabasePath(pub Arc<Mutex<Option<PathBuf>>>);
+use tauri_plugin_store::StoreExt;
 
 #[tauri::command]
 pub async fn select_database_path(app: AppHandle) -> Result<String, String> {
@@ -25,12 +22,11 @@ pub async fn select_database_path(app: AppHandle) -> Result<String, String> {
             let path_str = file_path.to_string_lossy().to_string();
 
             // Store the selected path in app state
-            let db_path_state: State<DatabasePath> = app.state();
-            let mut db_path = db_path_state.0.lock().await;
-            *db_path = Some(file_path.clone());
+            let store = app.store("store").expect("Failed to get store");
+            store.set("database_path", path_str.clone());
 
             // Initialize the SQL plugin with the selected database
-            if let Err(e) = initialize_sql_plugin(&app, &file_path).await {
+            if let Err(e) = initialize_sql_plugin(app.clone()).await {
                 return Err(format!("Failed to initialize database: {}", e));
             }
 
@@ -42,10 +38,13 @@ pub async fn select_database_path(app: AppHandle) -> Result<String, String> {
 
 #[tauri::command]
 pub async fn get_current_database_path(app: AppHandle) -> Result<Option<String>, String> {
-    let db_path_state: State<DatabasePath> = app.state();
-    let db_path = db_path_state.0.lock().await;
+    let store = app
+        .store("store")
+        .map_err(|e| format!("Failed to get store: {}", e))?;
+    let path_value = store.get("database_path");
+    let path = path_value.and_then(|v| v.as_str().map(|s| s.to_string()));
 
-    Ok(db_path.as_ref().map(|p| p.to_string_lossy().to_string()))
+    Ok(path)
 }
 
 #[tauri::command]
@@ -67,12 +66,11 @@ pub async fn create_new_database(app: AppHandle) -> Result<String, String> {
             let path_str = file_path.to_string_lossy().to_string();
 
             // Store the selected path in app state
-            let db_path_state: State<DatabasePath> = app.state();
-            let mut db_path = db_path_state.0.lock().await;
-            *db_path = Some(file_path.clone());
+            let store = app.store("store").expect("Failed to get store");
+            store.set("database_path", path_str.clone());
 
             // Initialize the SQL plugin with the new database
-            if let Err(e) = initialize_sql_plugin(&app, &file_path).await {
+            if let Err(e) = initialize_sql_plugin(app.clone()).await {
                 return Err(format!("Failed to initialize database: {}", e));
             }
 
@@ -82,34 +80,25 @@ pub async fn create_new_database(app: AppHandle) -> Result<String, String> {
     }
 }
 
-async fn initialize_sql_plugin(
-    app: &AppHandle,
-    db_path: &PathBuf,
-) -> Result<(), Box<dyn std::error::Error>> {
+#[tauri::command]
+pub async fn initialize_sql_plugin(app: AppHandle) -> Result<(), String> {
     let migrations = crate::load_migrations();
-    let db_uri = format!("sqlite:{}", db_path.to_string_lossy());
+    let db_path = get_current_database_path(app.clone())
+        .await?
+        .ok_or("No database path set")?;
+    let db_uri = format!("sqlite:{}", db_path);
 
     let sql_plugin = Builder::default()
         .add_migrations(&db_uri, migrations)
         .build();
 
-    app.plugin(sql_plugin)?;
+    app.remove_plugin(sql_plugin.name());
+    app.plugin(sql_plugin).expect("Error adding plugin");
     Ok(())
 }
 
 #[tauri::command]
 pub async fn show_database_selection_dialog(app: AppHandle) -> Result<String, String> {
-    // First check if we already have a database path stored (in case of app restart)
-    let db_path_state: State<DatabasePath> = app.state();
-    let existing_path = {
-        let db_path = db_path_state.0.lock().await;
-        db_path.clone()
-    };
-
-    if existing_path.is_some() {
-        return Ok(existing_path.unwrap().to_string_lossy().to_string()); // Database already initialized
-    }
-
     let choice = app
         .dialog()
         .message("Would you like to open an existing database or create a new one?")
