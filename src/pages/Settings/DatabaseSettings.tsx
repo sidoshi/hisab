@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Button, Text, View } from "reshaped";
-import { useDb } from "./";
+import { useDb } from "@/db";
 
 export const DBSettings: FC = () => {
   const { dbPath, openDb, selectingDb, closeDb } = useDb();
