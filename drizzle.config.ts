@@ -5,6 +5,7 @@ import path from "path";
 const resolvedDbPath = path.resolve(
   process.env.DB_PATH!.replace(/^~(?=$|\/|\\)/, process.env.HOME!)
 );
+console.log("Resolved DB Path for Drizzle Migrations: ", resolvedDbPath);
 
 export default defineConfig({
   dialect: "sqlite",

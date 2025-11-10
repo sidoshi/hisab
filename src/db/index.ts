@@ -10,10 +10,10 @@ type Row = {
 
 let db: ReturnType<typeof drizzle> | null = null;
 
-export async function loadDB() {
+export async function loadDB(path: string) {
   if (db == null) {
-    // Running Migrations
-    await Database.load("sqlite:database.db");
+    // Load the database using the selected path to run the migrations
+    await Database.load(`sqlite:${path}`);
 
     db = drizzle(
       async (sql, params, method) => {
@@ -48,4 +48,20 @@ export async function loadDB() {
   }
 
   return db;
+}
+
+export async function selectExistingDatabase(): Promise<string> {
+  return invoke<string>("select_database_path");
+}
+
+export async function createNewDatabase(): Promise<string> {
+  return invoke<string>("create_new_database");
+}
+
+export async function getCurrentDatabasePath(): Promise<string | null> {
+  return invoke<string | null>("get_current_database_path");
+}
+
+export async function showDatabaseSelectionDialog() {
+  return invoke<string | null>("show_database_selection_dialog");
 }

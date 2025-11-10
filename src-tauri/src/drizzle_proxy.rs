@@ -1,3 +1,4 @@
+use crate::db_setup::get_current_database_path;
 use base64::Engine;
 use base64::engine::general_purpose;
 use serde::{Deserialize, Serialize};
@@ -7,8 +8,7 @@ use sqlx::{
     query::Query,
     sqlite::{SqliteArguments, SqliteRow},
 };
-use std::path::PathBuf;
-use tauri::Manager;
+
 use tauri::{AppHandle, command};
 
 #[derive(Debug, Deserialize)]
@@ -25,8 +25,10 @@ pub struct SqlRow {
 
 #[command]
 pub async fn run_sql(app: AppHandle, query: SqlQuery) -> Result<Vec<SqlRow>, String> {
-    let db_path = get_app_db_path(&app)?;
-    let uri = format!("sqlite://{}", db_path.display());
+    let db_path = get_current_database_path(app.clone())
+        .await?
+        .expect("No database is selected in the current path");
+    let uri = format!("sqlite://{}", db_path);
 
     let pool = SqlitePool::connect(&uri)
         .await
@@ -63,13 +65,6 @@ pub async fn run_sql(app: AppHandle, query: SqlQuery) -> Result<Vec<SqlRow>, Str
         .collect();
 
     Ok(result)
-}
-
-fn get_app_db_path(app: &AppHandle) -> Result<PathBuf, String> {
-    app.path()
-        .app_data_dir()
-        .map(|p| p.join("database.db"))
-        .map_err(|_| "Could not resolve app data directory".to_string())
 }
 
 fn bind_value<'q>(
