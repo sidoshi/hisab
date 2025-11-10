@@ -32,10 +32,5 @@
       "icons/icon.ico"
     ],
     "resources": ["migrations/*"]
-  },
-  "plugins": {
-    "sql": {
-      "preload": ["sqlite:database.db"]
-    }
   }
 }
