@@ -21,7 +21,7 @@ const Layout: FC = () => {
         justify="space-between"
       >
         <View padding={4}>
-          <Text variant="featured-2" weight="bold">
+          <Text variant="featured-2" weight="bold" color="primary">
             Chandan Hisab
           </Text>
         </View>

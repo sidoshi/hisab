@@ -1,16 +1,15 @@
 import { FC } from "react";
-import { View, Text } from "reshaped";
+import { Grid, View } from "reshaped";
+import { EntriesBox } from "./EntriesBox";
+import { EntriesTimeline } from "./EntriesTimeline";
 
 export const Home: FC = () => {
   return (
-    <View padding={4} gap={4}>
-      <Text variant="featured-1" weight="bold">
-        Welcome to Chandan Hisab
-      </Text>
-      <Text>
-        This is the home page of your personal finance management application.
-        Use the navigation links above to explore different features.
-      </Text>
+    <View padding={3}>
+      <Grid columns="1fr 2fr" rows="1fr" gap={4}>
+        <EntriesBox />
+        <EntriesTimeline />
+      </Grid>
     </View>
   );
 };
