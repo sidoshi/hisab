@@ -1,4 +1,4 @@
-import { FC, useRef } from "react";
+import { FC, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -22,6 +22,7 @@ import {
   AccountAutocompleteSelection,
   AccountAutocompleteSelectionType,
 } from "./AccountsAutocomplete";
+import { useInsertAccount, useInsertEntry } from "@/db/queries";
 
 export const EntryFormSchema = z.object({
   selectedAccount: z
@@ -32,7 +33,10 @@ export const EntryFormSchema = z.object({
           name: z.string().min(4, "Account name is required"),
           code: z.string(),
           id: z.number(),
-          phone: z.string(),
+          phone: z.string().nullable(),
+          createdAt: z.string(),
+          updatedAt: z.string(),
+          deletedAt: z.string().nullable(),
         }),
       }),
       z.object({
@@ -59,6 +63,8 @@ type EntryFormInputs = {
 };
 
 export const EntriesBox: FC = () => {
+  const [entryType, setEntryType] = useState<"debit" | "credit">("debit");
+
   const accountSelectRef = useRef<HTMLInputElement>(null);
   const form = useForm<EntryFormInputs>({
     defaultValues: {
@@ -71,10 +77,37 @@ export const EntriesBox: FC = () => {
   });
   const { handleSubmit, reset } = form;
 
-  const onSubmit: SubmitHandler<EntryFormInputs> = (data) => {
-    console.log(data, "submitted");
-    reset();
+  const { mutateAsync: insertAccount } = useInsertAccount();
+  const { mutateAsync: insertEntry } = useInsertEntry();
+
+  const onSubmit: SubmitHandler<EntryFormInputs> = async (data) => {
+    if (
+      data.selectedAccount?.type === AccountAutocompleteSelectionType.Create
+    ) {
+      const newAccount = await insertAccount({
+        name: data.selectedAccount.account.name,
+        code: data.code,
+      });
+
+      await insertEntry({
+        accountId: newAccount.id,
+        amount: data.amount,
+        description: data.notes,
+        type: entryType,
+      });
+    } else {
+      await insertEntry({
+        accountId: data.selectedAccount!.account.id,
+        amount: data.amount,
+        description: data.notes,
+        type: entryType,
+      });
+    }
+
     accountSelectRef.current?.focus();
+    setTimeout(() => {
+      reset();
+    }, 50);
   };
 
   return (
@@ -92,7 +125,10 @@ export const EntriesBox: FC = () => {
                 itemWidth="equal"
                 variant="pills-elevated"
                 size="large"
-                defaultValue="debit"
+                value={entryType}
+                onChange={({ value }) =>
+                  setEntryType(value as "debit" | "credit")
+                }
               >
                 <Tabs.List>
                   <Tabs.Item value="debit">DEBIT</Tabs.Item>

@@ -2,6 +2,11 @@ import { FC, RefObject, useEffect, useState } from "react";
 import { Autocomplete, FormControl, Grid, MenuItem, TextField } from "reshaped";
 
 import { useController, useFormContext, useWatch } from "react-hook-form";
+import { Account } from "@/db/schema";
+import {
+  useAutocompleteAccounts,
+  useCheckAccountCodeExists,
+} from "@/db/queries";
 
 function shortCodeFromName(fullName: string) {
   const parts = fullName.trim().split(/\s+/);
@@ -15,13 +20,6 @@ function shortCodeFromName(fullName: string) {
 
   return (firstName.substring(0, 2) + lastName.substring(0, 1)).toUpperCase();
 }
-
-type Account = {
-  name: string;
-  code: string;
-  id: number;
-  phone: string;
-};
 
 export enum AccountAutocompleteSelectionType {
   Existing = "existing",
@@ -39,12 +37,6 @@ export type AccountAutocompleteSelection =
         name: string;
       };
     };
-
-const accounts: Account[] = [
-  { id: 1, name: "RAJESH SHAH", code: "RJS", phone: "1234567890" },
-  { id: 2, name: "MANISH DAVE", code: "MND", phone: "0987654321" },
-  { id: 3, name: "NITA SHAH", code: "NRS", phone: "1122334455" },
-];
 
 const existing = (account: Account) => ({
   type: AccountAutocompleteSelectionType.Existing,
@@ -71,6 +63,7 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
   });
 
   const [text, setText] = useState(selectedAccount?.account?.name || "");
+  const { data: accounts } = useAutocompleteAccounts(text);
 
   useEffect(() => {
     if (selectedAccount) {
@@ -97,6 +90,20 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
       selectedAccount?.type === AccountAutocompleteSelectionType.Existing,
   });
 
+  const { data: codeExists } = useCheckAccountCodeExists(codeField.field.value);
+  useEffect(() => {
+    clearErrors("code");
+    if (
+      codeExists &&
+      selectedAccount?.type === AccountAutocompleteSelectionType.Create
+    ) {
+      setError("code", {
+        type: "manual",
+        message: "Code is already taken. Please choose another one.",
+      });
+    }
+  }, [codeExists]);
+
   const setCodeOnAccountSelect = (account: AccountAutocompleteSelection) => {
     if (account.type === AccountAutocompleteSelectionType.Existing) {
       codeField.field.onChange(account.account.code);
@@ -104,28 +111,6 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
       codeField.field.onChange(shortCodeFromName(account.account.name));
     }
   };
-
-  const checkUsernameAvailability = async () => {
-    clearErrors("code");
-    const existingAccount = accounts.find(
-      (acc) => acc.code === codeField?.field?.value
-    );
-    if (existingAccount) {
-      setError("code", {
-        type: "manual",
-        message: "Code is already taken. Please choose another one.",
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (
-      codeField?.field?.value &&
-      selectedAccount?.type === AccountAutocompleteSelectionType.Create
-    ) {
-      checkUsernameAvailability();
-    }
-  }, [codeField?.field?.value]);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {

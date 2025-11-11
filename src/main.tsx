@@ -9,16 +9,20 @@ import { router } from "./routes";
 import { Reshaped } from "reshaped";
 import { useAtomValue } from "jotai";
 import { colorModeAtom } from "./atoms/theme";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const Root: FC = () => {
   const colorMode = useAtomValue(colorModeAtom);
+  const queryClient = new QueryClient();
 
   return (
     <React.StrictMode>
       <DatabaseProvider>
-        <Reshaped theme="slate" colorMode={colorMode}>
-          <RouterProvider router={router} />
-        </Reshaped>
+        <QueryClientProvider client={queryClient}>
+          <Reshaped theme="slate" colorMode={colorMode}>
+            <RouterProvider router={router} />
+          </Reshaped>
+        </QueryClientProvider>
       </DatabaseProvider>
     </React.StrictMode>
   );

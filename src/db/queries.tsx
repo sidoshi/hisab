@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDb } from ".";
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, count, desc, eq, isNull, like } from "drizzle-orm";
 import { AccountInsert, EntryInsert } from "./schema";
 
 export const usePaginatedAccounts = (
@@ -18,6 +18,7 @@ export const usePaginatedAccounts = (
         .limit(pageSize)
         .offset(page * pageSize)
         .where(isNull(schema.accounts.deletedAt))
+        .orderBy(desc(schema.accounts.createdAt))
         .all();
 
       const totalAccounts = await db
@@ -31,6 +32,31 @@ export const usePaginatedAccounts = (
 
       return { accounts, total, hasMore };
     },
+  });
+};
+
+export const useAutocompleteAccounts = (searchText: string) => {
+  const { db, schema } = useDb();
+
+  return useQuery({
+    initialData: [],
+    queryKey: ["accounts-autocomplete", searchText],
+    queryFn: async () => {
+      const accounts = await db
+        .select()
+        .from(schema.accounts)
+        .where(
+          and(
+            isNull(schema.accounts.deletedAt),
+            like(schema.accounts.name, `%${searchText}%`)
+          )
+        )
+        .limit(10)
+        .all();
+
+      return accounts;
+    },
+    enabled: searchText.length > 0,
   });
 };
 
@@ -99,6 +125,7 @@ export const usePaginatedEntries = (
   const { db, schema } = useDb();
 
   return useQuery({
+    initialData: { entries: [], total: 0, hasMore: false },
     queryKey: ["entries-paginated"],
     queryFn: async () => {
       const rawEntries = await db
@@ -116,6 +143,7 @@ export const usePaginatedEntries = (
             isNull(schema.accounts.deletedAt)
           )
         )
+        .orderBy(desc(schema.entries.createdAt))
         .all();
 
       const entries = rawEntries.map(
