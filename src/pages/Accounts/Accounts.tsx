@@ -1,5 +1,6 @@
 import { useAccountsWithBalance } from "@/db/queries";
 import { toLocaleString } from "@/utils";
+import { Link } from "@tanstack/react-router";
 import { FC } from "react";
 import { Card, Divider, Loader, Table, Text, View } from "reshaped";
 
@@ -46,7 +47,9 @@ export const Accounts: FC = () => {
               </Table.Cell>
               <Table.Cell>
                 <View>
-                  <Text>{account.name}</Text>
+                  <Link to={`/accounts/${account.id}`}>
+                    <Text>{account.name}</Text>
+                  </Link>
                 </View>
               </Table.Cell>
               <Table.Cell>

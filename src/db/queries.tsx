@@ -210,6 +210,52 @@ export const useDeleteEntry = () => {
   });
 };
 
+export const useAccountWithBalance = (accountId: number) => {
+  const { db, schema } = useDb();
+
+  return useQuery({
+    queryKey: ["account-with-balance", accountId],
+    enabled: accountId != null,
+    queryFn: async () => {
+      const account = await db
+        .select()
+        .from(schema.accounts)
+        .where(
+          and(
+            eq(schema.accounts.id, accountId),
+            isNull(schema.accounts.deletedAt)
+          )
+        )
+        .get();
+
+      if (!account) {
+        throw new Error("Account not found");
+      }
+
+      const entries = await db
+        .select()
+        .from(schema.entries)
+        .where(
+          and(
+            eq(schema.entries.accountId, accountId),
+            isNull(schema.entries.deletedAt)
+          )
+        )
+        .all();
+
+      const balance = entries.reduce((acc, entry) => {
+        if (entry.type === "debit") {
+          return acc + entry.amount;
+        } else {
+          return acc - entry.amount;
+        }
+      }, 0);
+
+      return { ...account, balance };
+    },
+  });
+};
+
 export const useAccountsWithBalance = () => {
   const { db, schema } = useDb();
 
