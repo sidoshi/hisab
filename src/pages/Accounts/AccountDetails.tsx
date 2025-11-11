@@ -1,14 +1,15 @@
 import { FC } from "react";
 import { View, Card, Divider, Text, Loader } from "reshaped";
 import { useParams } from "@tanstack/react-router";
-import { useAccountWithBalance } from "@/db/queries";
+import { useAccountWithEntries } from "@/db/queries";
 import { toLocaleString } from "@/utils";
+import { EntriesTimeline } from "../Home/EntriesTimeline";
 
 export const AccountDetails: FC = () => {
   const { accountId } = useParams({ strict: false });
-  const { data, isLoading } = useAccountWithBalance(accountId);
+  const { data, isLoading } = useAccountWithEntries(accountId);
 
-  if (isLoading) {
+  if (isLoading || data == null) {
     return (
       <View justify="center" align="center" height="80vh">
         <Loader />
@@ -16,7 +17,13 @@ export const AccountDetails: FC = () => {
     );
   }
 
-  const balance = data?.balance || 0;
+  const balance = data.balance;
+
+  const { entries, ...account } = data;
+  const entriesWithAccount = entries.map((entry) => ({
+    ...entry,
+    account: account,
+  }));
   return (
     <View padding={4} paddingInline={15} gap={4}>
       <Card>
@@ -31,6 +38,8 @@ export const AccountDetails: FC = () => {
       </Card>
 
       <Divider />
+
+      <EntriesTimeline entries={entriesWithAccount} />
     </View>
   );
 };

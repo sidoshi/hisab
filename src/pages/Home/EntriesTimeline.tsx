@@ -2,13 +2,16 @@ import { FC } from "react";
 import { Edit, Trash } from "react-feather";
 import { Badge, Button, Card, Divider, Text, Timeline, View } from "reshaped";
 
-import { usePaginatedEntries } from "@/db/queries";
+import { Account, Entry } from "@/db/schema";
+import { Link } from "@tanstack/react-router";
 
-export const EntriesTimeline: FC = () => {
-  const {
-    data: { entries },
-  } = usePaginatedEntries();
+type TimelineEntry = Omit<Entry, "accountId"> & {
+  account: Account | null;
+};
 
+export const EntriesTimeline: FC<{ entries: TimelineEntry[] }> = ({
+  entries,
+}) => {
   return (
     <View padding={3}>
       <Text variant="featured-1">Recent Entries</Text>
@@ -50,7 +53,13 @@ export const EntriesTimeline: FC = () => {
 
                   <View paddingTop={2} direction="row" justify="space-between">
                     <View gap={1}>
-                      <Text variant="featured-2">{entry.account?.name}</Text>
+                      <Link
+                        style={{ textDecoration: "none", color: "inherit" }}
+                        to={`/accounts/${entry.account?.id}`}
+                      >
+                        <Text variant="featured-2">{entry.account?.name}</Text>
+                      </Link>
+
                       <View direction="row" gap={6} align="center">
                         <Text variant="caption-1">{entry.account?.code}</Text>
                         {entry.account?.phone && (

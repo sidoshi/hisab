@@ -1,5 +1,6 @@
 import { useAccountsWithBalance } from "@/db/queries";
 import { toLocaleString } from "@/utils";
+import { Link } from "@tanstack/react-router";
 import { FC } from "react";
 import { View, Text, Table, Grid, Loader, Divider, Card } from "reshaped";
 
@@ -57,7 +58,9 @@ export const Ledger: FC = () => {
               <Table.Row key={account.id}>
                 <Table.Cell>
                   <View>
-                    <Text>{account.name}</Text>
+                    <Link to={`/accounts/${account.id}`}>
+                      <Text>{account.name}</Text>
+                    </Link>
                   </View>
                 </Table.Cell>
                 <Table.Cell>
@@ -92,7 +95,9 @@ export const Ledger: FC = () => {
               <Table.Row key={account.id}>
                 <Table.Cell>
                   <View>
-                    <Text>{account.name}</Text>
+                    <Link to={`/accounts/${account.id}`}>
+                      <Text>{account.name}</Text>
+                    </Link>
                   </View>
                 </Table.Cell>
                 <Table.Cell>

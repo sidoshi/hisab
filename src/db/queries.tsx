@@ -210,7 +210,7 @@ export const useDeleteEntry = () => {
   });
 };
 
-export const useAccountWithBalance = (accountId: number) => {
+export const useAccountWithEntries = (accountId: number) => {
   const { db, schema } = useDb();
 
   return useQuery({
@@ -251,7 +251,7 @@ export const useAccountWithBalance = (accountId: number) => {
         }
       }, 0);
 
-      return { ...account, balance };
+      return { ...account, entries, balance };
     },
   });
 };
