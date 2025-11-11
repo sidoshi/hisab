@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Grid, View } from "reshaped";
-import { EntriesBox } from "./EntriesBox";
+import { EntriesBox } from "./EntriesBox/EntriesBox";
 import { EntriesTimeline } from "./EntriesTimeline";
 
 export const Home: FC = () => {
