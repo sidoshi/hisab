@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { drizzle } from "drizzle-orm/sqlite-proxy";
+import { drizzle, SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 import Database from "@tauri-apps/plugin-sql";
 import * as schema from "./schema";
 import {
@@ -18,16 +18,17 @@ type Row = {
 };
 
 type DatabaseContextValue = {
-  db: ReturnType<typeof drizzle> | null;
+  db: SqliteRemoteDatabase<typeof schema>;
   dbPath: string | null;
   openDb: () => Promise<void>;
   selectingDb: boolean;
   closeDb: () => Promise<void>;
+  schema: typeof schema;
 };
 
 const DatabaseContext = createContext<DatabaseContextValue | null>(null);
 
-const db = drizzle(
+const db = drizzle<typeof schema>(
   async (sql, params, method) => {
     try {
       const rows = await invoke<Row[]>("run_sql", {
@@ -109,6 +110,7 @@ export const DatabaseProvider: FC<PropsWithChildren> = ({ children }) => {
       openDb,
       selectingDb,
       closeDb,
+      schema,
     }),
     [dbPath, selectingDb]
   );
