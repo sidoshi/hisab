@@ -12,6 +12,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@libsql/client": "^0.15.15",
     "@tanstack/react-router": "^1.135.0",
     "@tauri-apps/api": "^2",
@@ -23,7 +24,9 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-feather": "^2.0.10",
-    "reshaped": "^3.8.8"
+    "react-hook-form": "^7.66.0",
+    "reshaped": "^3.8.8",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

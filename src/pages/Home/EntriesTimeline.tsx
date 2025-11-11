@@ -6,7 +6,7 @@ const entries = [
   {
     id: 1,
     amount: 500,
-    account: "Rajesh Shah",
+    account: "RAJESH SHAH",
     type: "debit",
     code: "RJS",
     date: "2024-10-01",
@@ -16,7 +16,7 @@ const entries = [
   {
     id: 2,
     amount: 200,
-    account: "Manish Doshi",
+    account: "MANISH DAVE",
     code: "MND",
     type: "credit",
     date: "2024-10-02",
@@ -26,7 +26,7 @@ const entries = [
   {
     id: 3,
     amount: 150,
-    account: "Noor Shaikh",
+    account: "NITA SHAH",
     code: "NRS",
     type: "debit",
     date: "2024-10-03",
@@ -35,7 +35,7 @@ const entries = [
   {
     id: 4,
     amount: 300,
-    account: "Rajesh Shah",
+    account: "RAJESH SHAH",
     code: "RJS",
     type: "credit",
     date: "2024-10-04",
@@ -45,7 +45,7 @@ const entries = [
   {
     id: 5,
     amount: 400,
-    account: "Fatima Khan",
+    account: "FATIMA TRADERS",
     code: "FTK",
     type: "debit",
     date: "2024-10-05",

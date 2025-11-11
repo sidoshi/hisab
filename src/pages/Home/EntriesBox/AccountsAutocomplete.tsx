@@ -1,5 +1,20 @@
-import { FC, useEffect, useState } from "react";
-import { Autocomplete, FormControl, TextField, View } from "reshaped";
+import { FC, RefObject, useEffect, useState } from "react";
+import { Autocomplete, FormControl, Grid, MenuItem, TextField } from "reshaped";
+
+import { useController, useFormContext, useWatch } from "react-hook-form";
+
+function shortCodeFromName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/);
+
+  if (parts.length === 1) {
+    return parts[0].substring(0, 3).toUpperCase();
+  }
+
+  const firstName = parts[0];
+  const lastName = parts[parts.length - 1];
+
+  return (firstName.substring(0, 2) + lastName.substring(0, 1)).toUpperCase();
+}
 
 type Account = {
   name: string;
@@ -8,9 +23,9 @@ type Account = {
   phone: string;
 };
 
-enum AccountAutocompleteSelectionType {
+export enum AccountAutocompleteSelectionType {
   Existing = "existing",
-  Create = "Create",
+  Create = "create",
 }
 
 export type AccountAutocompleteSelection =
@@ -22,19 +37,13 @@ export type AccountAutocompleteSelection =
       type: AccountAutocompleteSelectionType.Create;
       account: {
         name: string;
-        code: string;
       };
     };
 
-type AccountAutocompleteProps = {
-  onSelect: (selection: AccountAutocompleteSelection) => void;
-  value: AccountAutocompleteSelection | null;
-};
-
 const accounts: Account[] = [
-  { id: 1, name: "Rajesh Shah", code: "RJS", phone: "1234567890" },
-  { id: 2, name: "Manish Doshi", code: "MND", phone: "0987654321" },
-  { id: 3, name: "Noor Shaikh", code: "NRS", phone: "1122334455" },
+  { id: 1, name: "RAJESH SHAH", code: "RJS", phone: "1234567890" },
+  { id: 2, name: "MANISH DAVE", code: "MND", phone: "0987654321" },
+  { id: 3, name: "NITA SHAH", code: "NRS", phone: "1122334455" },
 ];
 
 const existing = (account: Account) => ({
@@ -44,24 +53,85 @@ const existing = (account: Account) => ({
 
 const create = (name: string) => ({
   type: AccountAutocompleteSelectionType.Create,
-  account: { name, code: "" },
+  account: { name },
 });
 
-export const AccountAutocomplete: FC<AccountAutocompleteProps> = ({
-  onSelect,
-  value,
+type AccountsAutocompleteProps = {
+  accountSelectRef: RefObject<HTMLInputElement | null>;
+};
+
+export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
+  accountSelectRef,
 }) => {
-  const [text, setText] = useState(value?.account.name || "");
+  const { control, setError, clearErrors } = useFormContext();
+
+  const selectedAccount = useWatch({
+    control,
+    name: "selectedAccount",
+  });
+
+  const [text, setText] = useState(selectedAccount?.account?.name || "");
+
+  useEffect(() => {
+    if (selectedAccount) {
+      setText(selectedAccount.account.name.toUpperCase());
+    } else {
+      setText("");
+    }
+  }, [selectedAccount?.account?.name]);
 
   const filteredAccounts = accounts.filter((account) =>
     account.name.toLowerCase().includes(text.toLowerCase())
   );
 
-  useEffect(() => {
-    if (value) {
-      setText(value.account.name);
+  const selectedAccountField = useController({
+    control,
+    name: "selectedAccount",
+    rules: { required: true },
+  });
+  const codeField = useController({
+    control,
+    name: "code",
+    rules: { required: true },
+    disabled:
+      selectedAccount?.type === AccountAutocompleteSelectionType.Existing,
+  });
+
+  const setCodeOnAccountSelect = (account: AccountAutocompleteSelection) => {
+    if (account.type === AccountAutocompleteSelectionType.Existing) {
+      codeField.field.onChange(account.account.code);
+    } else {
+      codeField.field.onChange(shortCodeFromName(account.account.name));
     }
-  }, [value]);
+  };
+
+  const checkUsernameAvailability = async () => {
+    clearErrors("code");
+    const existingAccount = accounts.find(
+      (acc) => acc.code === codeField?.field?.value
+    );
+    if (existingAccount) {
+      setError("code", {
+        type: "manual",
+        message: "Code is already taken. Please choose another one.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (
+      codeField?.field?.value &&
+      selectedAccount?.type === AccountAutocompleteSelectionType.Create
+    ) {
+      checkUsernameAvailability();
+    }
+  }, [codeField?.field?.value]);
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+  };
 
   const addNewOption = (
     <Autocomplete.Item key={text} value={text} data={create(text)}>
@@ -70,53 +140,73 @@ export const AccountAutocomplete: FC<AccountAutocompleteProps> = ({
   );
 
   return (
-    <View direction="row" gap={4}>
-      <FormControl required>
-        <FormControl.Label>Account</FormControl.Label>
-        <Autocomplete
-          name="account"
-          placeholder="Select or add account"
-          value={text}
-          inputAttributes={{
-            autoCapitalize: "off",
-            autoCorrect: "off",
-          }}
-          onChange={({ value }) => setText(value)}
-          onItemSelect={({ data }) => {
-            onSelect(data as AccountAutocompleteSelection);
-          }}
-        >
-          {filteredAccounts.length === 0 && text !== "" ? addNewOption : null}
-          {filteredAccounts.map((option) => (
-            <Autocomplete.Item
-              key={option.id}
-              value={option.name}
-              data={existing(option)}
-            >
-              {option.name}
-            </Autocomplete.Item>
-          ))}
-        </Autocomplete>
-      </FormControl>
+    <Grid columns="1fr 1fr" rows="1fr" gap={4}>
+      <div onKeyDown={handleKeyDown}>
+        <FormControl required>
+          <FormControl.Label>Account</FormControl.Label>
+          <Autocomplete
+            {...selectedAccountField.field}
+            placeholder="Select or add account"
+            value={text}
+            inputAttributes={{
+              ref: accountSelectRef,
+              autoCapitalize: "off",
+              autoCorrect: "off",
+            }}
+            onChange={({ value }) => {
+              setText(value.toUpperCase());
+            }}
+            onBlur={() => {
+              if (selectedAccount == null) {
+                setText("");
+              }
+              if (text !== selectedAccount) {
+                setText(selectedAccount?.account?.name || "");
+              }
+            }}
+            hasError={!!selectedAccountField.fieldState.error}
+            onItemSelect={({ data }) => {
+              let selectedAccount = data as AccountAutocompleteSelection;
+              selectedAccountField.field.onChange(selectedAccount);
+              setText(selectedAccount.account.name.toUpperCase());
+              setCodeOnAccountSelect(selectedAccount);
+            }}
+          >
+            {filteredAccounts.length === 0 && text !== "" ? addNewOption : null}
+            {filteredAccounts.map((option) => (
+              <Autocomplete.Item
+                key={option.id}
+                value={option.name}
+                data={existing(option)}
+              >
+                <MenuItem>
+                  {option.name} ({option.code})
+                </MenuItem>
+              </Autocomplete.Item>
+            ))}
+          </Autocomplete>
+          <FormControl.Helper>
+            {selectedAccountField.fieldState.error?.message}
+          </FormControl.Helper>
+        </FormControl>
+      </div>
 
       <FormControl required>
         <FormControl.Label>Code</FormControl.Label>
         <TextField
-          onChange={(e) => {
-            onSelect({
-              type: AccountAutocompleteSelectionType.Create,
-              account: {
-                name: value?.account.name || "",
-                code: e.value,
-              },
-            });
+          {...codeField.field}
+          hasError={!!codeField.fieldState.error}
+          inputAttributes={{
+            autoCapitalize: "off",
+            autoCorrect: "off",
           }}
-          name="code"
+          onChange={(e) => codeField.field.onChange(e.value.toUpperCase())}
           placeholder="Enter code"
-          value={value?.account.code || ""}
-          disabled={value?.type === AccountAutocompleteSelectionType.Existing}
         />
+        <FormControl.Helper>
+          {codeField.fieldState.error?.message}
+        </FormControl.Helper>
       </FormControl>
-    </View>
+    </Grid>
   );
 };
