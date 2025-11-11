@@ -17,7 +17,7 @@ export const EntriesTimeline: FC = () => {
       <View paddingTop={5}>
         <Timeline>
           {entries.map((entry) => (
-            <Timeline.Item markerSlot={null}>
+            <Timeline.Item key={entry.id} markerSlot={null}>
               <Card padding={2}>
                 <View
                   padding={2}

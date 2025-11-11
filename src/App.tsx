@@ -29,17 +29,13 @@ const Layout: FC = () => {
         <View padding={4} direction="row" align="center">
           <Link to="/">
             {({ isActive }) => (
-              <Button as="a" variant={isActive ? "outline" : "ghost"}>
-                Home
-              </Button>
+              <Button variant={isActive ? "outline" : "ghost"}>Home</Button>
             )}
           </Link>
 
           <Link to="/settings">
             {({ isActive }) => (
-              <Button as="a" variant={isActive ? "outline" : "ghost"}>
-                Settings
-              </Button>
+              <Button variant={isActive ? "outline" : "ghost"}>Settings</Button>
             )}
           </Link>
 
