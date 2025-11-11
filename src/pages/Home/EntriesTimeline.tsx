@@ -21,6 +21,9 @@ type TimelineEntry = Omit<Entry, "accountId"> & {
 
 type EntriesTimelineProps = {
   entries: TimelineEntry[];
+
+  setDeleteEntryId?: (id: number) => void;
+
   pagination?: {
     total: number;
     page: number;
@@ -31,6 +34,7 @@ type EntriesTimelineProps = {
 export const EntriesTimeline: FC<EntriesTimelineProps> = ({
   entries,
   pagination,
+  setDeleteEntryId,
 }) => {
   return (
     <View paddingInline={8} gap={8}>
@@ -58,6 +62,7 @@ export const EntriesTimeline: FC<EntriesTimelineProps> = ({
                   <View gap={1} justify="end" direction="row">
                     <Button size="small" icon={<Edit />}></Button>
                     <Button
+                      onClick={() => setDeleteEntryId?.(entry.id)}
                       size="small"
                       color="critical"
                       icon={<Trash />}
