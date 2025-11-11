@@ -83,6 +83,7 @@ pub async fn create_new_database(app: AppHandle) -> Result<String, String> {
 #[tauri::command]
 pub async fn initialize_sql_plugin(app: AppHandle) -> Result<(), String> {
     let migrations = crate::load_migrations();
+    let migrations = migrations.into_iter().rev().collect::<Vec<_>>();
     let db_path = get_current_database_path(app.clone())
         .await?
         .ok_or("No database path set")?;
