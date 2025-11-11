@@ -3,9 +3,9 @@ import {
   Button,
   Card,
   FormControl,
-  NumberField,
   Tabs,
   TextArea,
+  TextField,
   View,
 } from "reshaped";
 import {
@@ -23,6 +23,7 @@ import {
   AccountAutocompleteSelectionType,
 } from "./AccountsAutocomplete";
 import { useInsertAccount, useInsertEntry } from "@/db/queries";
+import { toLocaleString } from "@/utils";
 
 export const EntryFormSchema = z.object({
   selectedAccount: z
@@ -144,16 +145,20 @@ export const EntriesBox: FC = () => {
                   name="amount"
                   control={form.control}
                   render={({ field, fieldState }) => (
-                    <NumberField
+                    <TextField
                       {...field}
+                      value={toLocaleString(field.value)}
                       name="amount"
                       hasError={!!fieldState.error}
-                      increaseAriaLabel="increase"
-                      decreaseAriaLabel="decrease"
                       placeholder="Enter amount"
-                      min={0}
                       onChange={({ value }) => {
-                        field.onChange(Number(value));
+                        const numberValue = Number(
+                          value.toString().replace(/,/g, "")
+                        );
+                        if (isNaN(numberValue) || numberValue < 0) {
+                          return;
+                        }
+                        field.onChange(numberValue);
                       }}
                     />
                   )}

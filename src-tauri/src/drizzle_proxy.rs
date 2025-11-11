@@ -109,9 +109,17 @@ fn sqlx_value_to_json(row: &SqliteRow, index: usize) -> Value {
             .try_get::<Vec<u8>, _>(index)
             .map(|bytes| Value::String(general_purpose::STANDARD.encode(&bytes)))
             .unwrap_or(Value::Null),
-        _ => row
-            .try_get::<String, _>(index)
-            .map(Value::String)
-            .unwrap_or(Value::Null),
+        "NULL" | _ => {
+            if let Ok(val) = row.try_get::<i64, _>(index) {
+                return Value::from(val);
+            }
+            if let Ok(val) = row.try_get::<f64, _>(index) {
+                return Value::from(val);
+            }
+            if let Ok(val) = row.try_get::<String, _>(index) {
+                return Value::String(val);
+            }
+            Value::Null
+        }
     }
 }

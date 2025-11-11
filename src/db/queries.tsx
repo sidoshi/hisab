@@ -126,14 +126,14 @@ export const usePaginatedEntries = (
 
   return useQuery({
     initialData: { entries: [], total: 0, hasMore: false },
-    queryKey: ["entries-paginated"],
+    queryKey: ["entries-paginated", page, pageSize],
     queryFn: async () => {
       const rawEntries = await db
         .select()
         .from(schema.entries)
         .limit(pageSize)
         .offset(page * pageSize)
-        .leftJoin(
+        .innerJoin(
           schema.accounts,
           eq(schema.entries.accountId, schema.accounts.id)
         )
@@ -156,7 +156,7 @@ export const usePaginatedEntries = (
       const totalEntries = await db
         .select({ count: count() })
         .from(schema.entries)
-        .leftJoin(
+        .innerJoin(
           schema.accounts,
           eq(schema.entries.accountId, schema.accounts.id)
         )
@@ -168,7 +168,7 @@ export const usePaginatedEntries = (
         )
         .get();
 
-      const total = Number(totalEntries?.count || 0);
+      const total = totalEntries?.count ? Number(totalEntries.count) : 0;
       const hasMore = (page + 1) * pageSize < total;
 
       return { entries, total, hasMore };

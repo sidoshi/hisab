@@ -29,7 +29,7 @@ export const Ledger: FC = () => {
     0
   );
 
-  const balance = debitTotal - creditTotal;
+  const balance = debitTotal + creditTotal;
 
   return (
     <View padding={4} paddingInline={15} gap={4}>
