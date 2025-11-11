@@ -209,3 +209,73 @@ export const useDeleteEntry = () => {
     },
   });
 };
+
+export const useAccountsWithBalance = () => {
+  const { db, schema } = useDb();
+
+  return useQuery({
+    queryKey: ["accounts-with-balance"],
+    queryFn: async () => {
+      // Get all non-deleted accounts with their entries and calculate balances
+      const accountsWithEntries = await db
+        .select({
+          id: schema.accounts.id,
+          name: schema.accounts.name,
+          code: schema.accounts.code,
+          entryAmount: schema.entries.amount,
+          entryType: schema.entries.type,
+        })
+        .from(schema.accounts)
+        .leftJoin(
+          schema.entries,
+          and(
+            eq(schema.accounts.id, schema.entries.accountId),
+            isNull(schema.entries.deletedAt)
+          )
+        )
+        .where(isNull(schema.accounts.deletedAt))
+        .all();
+
+      // Group by account and calculate balances
+      const accountBalances = new Map<
+        number,
+        {
+          id: number;
+          name: string;
+          code: string;
+          amount: number;
+        }
+      >();
+
+      accountsWithEntries.forEach((row) => {
+        const { id, name, code, entryAmount, entryType } = row;
+
+        if (!accountBalances.has(id)) {
+          accountBalances.set(id, {
+            id,
+            name,
+            code,
+            amount: 0,
+          });
+        }
+
+        const account = accountBalances.get(id)!;
+
+        // Calculate balance: Add for debit, subtract for credit
+        if (entryAmount !== null) {
+          if (entryType === "debit") {
+            account.amount += entryAmount;
+          } else if (entryType === "credit") {
+            account.amount -= entryAmount;
+          }
+        }
+      });
+
+      // Convert to array and determine the type based on final balance
+      return Array.from(accountBalances.values()).map((account) => ({
+        ...account,
+        type: account.amount >= 0 ? ("debit" as const) : ("credit" as const),
+      }));
+    },
+  });
+};
