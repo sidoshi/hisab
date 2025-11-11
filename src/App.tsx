@@ -39,6 +39,12 @@ const Layout: FC = () => {
             )}
           </Link>
 
+          <Link to="/accounts">
+            {({ isActive }) => (
+              <Button variant={isActive ? "outline" : "ghost"}>Accounts</Button>
+            )}
+          </Link>
+
           <Link to="/settings">
             {({ isActive }) => (
               <Button variant={isActive ? "outline" : "ghost"}>Settings</Button>

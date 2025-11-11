@@ -8,6 +8,7 @@ import App from "./App";
 import { Home } from "./pages/Home/Home";
 import { settingsRoute } from "./pages/Settings/routes";
 import { Ledger } from "./pages/Ledger/Ledger";
+import { Accounts } from "./pages/Accounts/Accounts";
 
 const rootRoute = createRootRoute();
 
@@ -29,8 +30,19 @@ const ledgerRoute = createRoute({
   component: Ledger,
 });
 
+const accountsRoute = createRoute({
+  getParentRoute: () => indexRoute,
+  path: "/accounts",
+  component: Accounts,
+});
+
 const routeTree = rootRoute.addChildren([
-  indexRoute.addChildren([homeRoute, settingsRoute, ledgerRoute]),
+  indexRoute.addChildren([
+    homeRoute,
+    settingsRoute,
+    ledgerRoute,
+    accountsRoute,
+  ]),
 ]);
 
 export const router = createRouter({

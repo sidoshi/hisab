@@ -1,13 +1,7 @@
 import { useAccountsWithBalance } from "@/db/queries";
+import { toLocaleString } from "@/utils";
 import { FC } from "react";
 import { View, Text, Table, Grid, Loader, Divider, Card } from "reshaped";
-
-const toLocaleString = (amount: number) => {
-  return Math.abs(amount).toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
-};
 
 export const Ledger: FC = () => {
   const { data, isLoading } = useAccountsWithBalance();
