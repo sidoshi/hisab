@@ -1,8 +1,11 @@
+import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 import { useAccountsWithBalance } from "@/db/queries";
 import { toLocaleString } from "@/utils";
 import { Link } from "@tanstack/react-router";
 import { FC, useEffect, useState } from "react";
+import { Edit, Trash } from "react-feather";
 import {
+  Button,
   Card,
   Checkbox,
   Divider,
@@ -14,6 +17,7 @@ import {
 } from "reshaped";
 
 export const Accounts: FC = () => {
+  const [deleteAccountId, setDeleteAccountId] = useState<number | null>(null);
   const [filterZeroBalance, setFilterZeroBalance] = useState(true);
   const { data, isLoading, refetch } =
     useAccountsWithBalance(filterZeroBalance);
@@ -63,7 +67,9 @@ export const Accounts: FC = () => {
               <Table.Heading>ID</Table.Heading>
               <Table.Heading>Account</Table.Heading>
               <Table.Heading>Code</Table.Heading>
+              <Table.Heading>Phone</Table.Heading>
               <Table.Heading>Balance</Table.Heading>
+              <Table.Heading></Table.Heading>
             </Table.Row>
 
             {data?.map((account) => (
@@ -87,6 +93,11 @@ export const Accounts: FC = () => {
                 </Table.Cell>
                 <Table.Cell>
                   <View>
+                    <Text>{account.phone || "-"}</Text>
+                  </View>
+                </Table.Cell>
+                <Table.Cell>
+                  <View>
                     <Text
                       color={account.type === "debit" ? "positive" : "critical"}
                       weight="bold"
@@ -96,11 +107,28 @@ export const Accounts: FC = () => {
                     </Text>
                   </View>
                 </Table.Cell>
+
+                <Table.Cell align="end" width="80px">
+                  <View width="80px" gap={2} direction="row" justify="end">
+                    <Button size="small" icon={Edit}></Button>
+                    <Button
+                      size="small"
+                      color="critical"
+                      onClick={() => setDeleteAccountId(account.id)}
+                      icon={Trash}
+                    ></Button>
+                  </View>
+                </Table.Cell>
               </Table.Row>
             ))}
           </Table>
         </Card>
       </View>
+
+      <DeleteAccountModal
+        deleteAccountId={deleteAccountId}
+        onClose={() => setDeleteAccountId(null)}
+      />
     </View>
   );
 };

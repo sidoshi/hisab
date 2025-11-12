@@ -8,6 +8,7 @@ import { DeleteEntryModal } from "@/components/DeleteEntryModal";
 import { EditEntryModal } from "@/components/EditEntryModal";
 import { EntryWithAccount } from "@/db/schema";
 import { Edit, Trash } from "react-feather";
+import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 
 export const AccountDetails: FC = () => {
   const { accountId } = useParams({ strict: false });
@@ -15,6 +16,13 @@ export const AccountDetails: FC = () => {
 
   const [deleteEntryId, setDeleteEntryId] = useState<number | null>(null);
   const [editEntry, setEditEntry] = useState<EntryWithAccount | null>(null);
+
+  const [deleteAccountId, setDeleteAccountId] = useState<number | null>(null);
+
+  const onDelete = () => {
+    // redirect to accounts page after deleting the account
+    window.location.href = "/accounts";
+  };
 
   if (isLoading || data == null) {
     return (
@@ -50,7 +58,12 @@ export const AccountDetails: FC = () => {
 
             <View gap={1} direction="row" align="center" paddingTop={10}>
               <Button size={"small"} icon={Edit} />
-              <Button color="critical" size={"small"} icon={Trash} />
+              <Button
+                onClick={() => setDeleteAccountId(data.id)}
+                color="critical"
+                size={"small"}
+                icon={Trash}
+              />
             </View>
           </View>
 
@@ -80,6 +93,12 @@ export const AccountDetails: FC = () => {
       />
 
       <EditEntryModal entry={editEntry} onClose={() => setEditEntry(null)} />
+
+      <DeleteAccountModal
+        deleteAccountId={deleteAccountId}
+        onClose={() => setDeleteAccountId(null)}
+        onDelete={onDelete}
+      />
     </View>
   );
 };

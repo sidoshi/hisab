@@ -91,6 +91,7 @@ export const useDeleteAccount = () => {
 
       queryClient.invalidateQueries({ queryKey: ["accounts-paginated"] });
       queryClient.invalidateQueries({ queryKey: ["entries-paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts-with-balance"] });
     },
   });
 };
@@ -295,6 +296,7 @@ export const useAccountsWithBalance = (filterZeroBalance: boolean = false) => {
           id: schema.accounts.id,
           name: schema.accounts.name,
           code: schema.accounts.code,
+          phone: schema.accounts.phone,
           entryAmount: schema.entries.amount,
           entryType: schema.entries.type,
         })
@@ -315,19 +317,21 @@ export const useAccountsWithBalance = (filterZeroBalance: boolean = false) => {
         {
           id: number;
           name: string;
+          phone: string | null;
           code: string;
           amount: number;
         }
       >();
 
       accountsWithEntries.forEach((row) => {
-        const { id, name, code, entryAmount, entryType } = row;
+        const { id, name, code, entryAmount, entryType, phone } = row;
 
         if (!accountBalances.has(id)) {
           accountBalances.set(id, {
             id,
             name,
             code,
+            phone,
             amount: 0,
           });
         }
