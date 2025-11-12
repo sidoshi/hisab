@@ -73,9 +73,11 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
     }
   }, [selectedAccount?.account?.name]);
 
-  const filteredAccounts = accounts.filter((account) =>
-    account.name.toLowerCase().includes(text.toLowerCase())
-  );
+  const filteredAccounts = accounts
+    .filter((account) =>
+      account.name.toLowerCase().includes(text.toLowerCase())
+    )
+    .slice(0, 5);
 
   const selectedAccountField = useController({
     control,
