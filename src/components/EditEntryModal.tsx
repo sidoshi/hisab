@@ -5,6 +5,7 @@ import {
   FormControl,
   Modal,
   Tabs,
+  Text,
   TextArea,
   TextField,
   useToast,
@@ -82,8 +83,12 @@ const EditEntryForm: FC<{
                     onChange={({ value }) => field.onChange(value)}
                   >
                     <Tabs.List>
-                      <Tabs.Item value="debit">Debit</Tabs.Item>
-                      <Tabs.Item value="credit">Credit</Tabs.Item>
+                      <Tabs.Item value="debit">
+                        <Text color="positive"> + DEBIT</Text>
+                      </Tabs.Item>
+                      <Tabs.Item value="credit">
+                        <Text color="critical"> - CREDIT</Text>
+                      </Tabs.Item>
                     </Tabs.List>
                   </Tabs>
                 )}

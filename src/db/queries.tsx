@@ -206,7 +206,6 @@ export const useUpdateEntry = () => {
       entryId: number;
       entryUpdate: Partial<EntryInsert>;
     }) => {
-      console.log("entryUpdate", entryUpdate);
       await db
         .update(schema.entries)
         .set({ ...entryUpdate, updatedAt: new Date().toISOString() })

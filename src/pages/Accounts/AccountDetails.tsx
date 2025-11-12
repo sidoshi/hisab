@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { View, Card, Divider, Text, Loader } from "reshaped";
+import { View, Card, Divider, Text, Loader, Button } from "reshaped";
 import { useParams } from "@tanstack/react-router";
 import { useAccountWithEntries } from "@/db/queries";
 import { toLocaleString } from "@/utils";
@@ -7,6 +7,7 @@ import { EntriesTimeline } from "../Home/EntriesTimeline";
 import { DeleteEntryModal } from "@/components/DeleteEntryModal";
 import { EditEntryModal } from "@/components/EditEntryModal";
 import { EntryWithAccount } from "@/db/schema";
+import { Edit, Trash } from "react-feather";
 
 export const AccountDetails: FC = () => {
   const { accountId } = useParams({ strict: false });
@@ -33,13 +34,35 @@ export const AccountDetails: FC = () => {
   return (
     <View padding={4} paddingInline={15} gap={4}>
       <Card>
-        <View direction="row" justify="space-between" align="center">
-          <Text variant="featured-2">{data?.name}</Text>
+        <View direction="row" justify="space-between">
+          <View>
+            <Text variant="featured-2">{data?.name}</Text>
 
-          <Text variant="body-1" color={balance >= 0 ? "positive" : "critical"}>
-            Balance: {balance >= 0 ? "+ " : "- "}
-            {toLocaleString(balance)}
-          </Text>
+            <View gap={4} direction="row" align="center">
+              <Text variant="caption-1" color="neutral">
+                {data?.code}
+              </Text>
+
+              <Text variant="caption-1" color="neutral">
+                {data?.phone || "(No Phone)"}
+              </Text>
+            </View>
+
+            <View gap={1} direction="row" align="center" paddingTop={10}>
+              <Button size={"small"} icon={Edit} />
+              <Button color="critical" size={"small"} icon={Trash} />
+            </View>
+          </View>
+
+          <View>
+            <Text
+              variant="body-1"
+              color={balance >= 0 ? "positive" : "critical"}
+            >
+              Balance: {balance >= 0 ? "+ " : "- "}
+              {toLocaleString(balance)}
+            </Text>
+          </View>
         </View>
       </Card>
 

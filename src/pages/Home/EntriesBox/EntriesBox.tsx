@@ -4,6 +4,7 @@ import {
   Card,
   FormControl,
   Tabs,
+  Text,
   TextArea,
   TextField,
   View,
@@ -132,8 +133,12 @@ export const EntriesBox: FC = () => {
                 }
               >
                 <Tabs.List>
-                  <Tabs.Item value="debit">DEBIT</Tabs.Item>
-                  <Tabs.Item value="credit">CREDIT</Tabs.Item>
+                  <Tabs.Item value="debit">
+                    <Text color="positive"> + DEBIT</Text>
+                  </Tabs.Item>
+                  <Tabs.Item value="credit">
+                    <Text color="critical"> - CREDIT</Text>
+                  </Tabs.Item>
                 </Tabs.List>
               </Tabs>
 
