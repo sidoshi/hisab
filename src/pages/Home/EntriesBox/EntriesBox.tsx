@@ -112,7 +112,7 @@ export const EntriesBox: FC = () => {
   };
 
   return (
-    <View>
+    <View paddingStart={8}>
       <Card padding={3}>
         <FormProvider {...form}>
           <form
