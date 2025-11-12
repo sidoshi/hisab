@@ -3,10 +3,7 @@ import { Autocomplete, FormControl, Grid, MenuItem, TextField } from "reshaped";
 
 import { useController, useFormContext, useWatch } from "react-hook-form";
 import { Account } from "@/db/schema";
-import {
-  useAutocompleteAccounts,
-  useCheckAccountCodeExists,
-} from "@/db/queries";
+import { useAutocompleteAccounts } from "@/db/queries";
 
 function shortCodeFromName(fullName: string) {
   const parts = fullName.trim().split(/\s+/);
@@ -55,7 +52,7 @@ type AccountsAutocompleteProps = {
 export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
   accountSelectRef,
 }) => {
-  const { control, setError, clearErrors } = useFormContext();
+  const { control } = useFormContext();
 
   const selectedAccount = useWatch({
     control,
@@ -91,20 +88,6 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
     disabled:
       selectedAccount?.type === AccountAutocompleteSelectionType.Existing,
   });
-
-  const { data: codeExists } = useCheckAccountCodeExists(codeField.field.value);
-  useEffect(() => {
-    clearErrors("code");
-    if (
-      codeExists != null &&
-      selectedAccount?.type === AccountAutocompleteSelectionType.Create
-    ) {
-      setError("code", {
-        type: "manual",
-        message: "Code is already taken. Please choose another one.",
-      });
-    }
-  }, [codeExists]);
 
   const setCodeOnAccountSelect = (account: AccountAutocompleteSelection) => {
     if (account.type === AccountAutocompleteSelectionType.Existing) {

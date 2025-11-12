@@ -23,7 +23,11 @@ import {
   AccountAutocompleteSelection,
   AccountAutocompleteSelectionType,
 } from "./AccountsAutocomplete";
-import { useInsertAccount, useInsertEntry } from "@/db/queries";
+import {
+  useCheckAccountCodeExists,
+  useInsertAccount,
+  useInsertEntry,
+} from "@/db/queries";
 import { toLocaleString } from "@/utils";
 
 export const EntryFormSchema = z.object({
@@ -77,12 +81,27 @@ export const EntriesBox: FC = () => {
     },
     resolver: zodResolver(EntryFormSchema),
   });
-  const { handleSubmit, reset } = form;
+  const { handleSubmit, reset, setError, watch } = form;
 
   const { mutateAsync: insertAccount } = useInsertAccount();
   const { mutateAsync: insertEntry } = useInsertEntry();
 
+  const codeValue = watch("code");
+  const selectedAccount = watch("selectedAccount");
+  const { data: codeExists } = useCheckAccountCodeExists(codeValue);
+
   const onSubmit: SubmitHandler<EntryFormInputs> = async (data) => {
+    if (
+      codeExists != null &&
+      selectedAccount?.type === AccountAutocompleteSelectionType.Create
+    ) {
+      setError("code", {
+        type: "manual",
+        message: "Code is already taken. Please choose another one.",
+      });
+      return;
+    }
+
     if (
       data.selectedAccount?.type === AccountAutocompleteSelectionType.Create
     ) {

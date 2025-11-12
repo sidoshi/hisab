@@ -25,7 +25,11 @@ import {
   AccountAutocompleteSelection,
   AccountAutocompleteSelectionType,
 } from "@/pages/Home/EntriesBox/AccountsAutocomplete";
-import { useInsertAccount, useUpdateEntry } from "@/db/queries";
+import {
+  useCheckAccountCodeExists,
+  useInsertAccount,
+  useUpdateEntry,
+} from "@/db/queries";
 import { toLocaleString } from "@/utils";
 import { EntryWithAccount } from "@/db/schema";
 import { EntryFormSchema } from "@/pages/Home/EntriesBox/EntriesBox";
@@ -60,7 +64,26 @@ const EditEntryForm: FC<{
       EntryFormSchema.extend({ type: z.enum(["debit", "credit"]) })
     ),
   });
-  const { handleSubmit } = form;
+  const { handleSubmit, watch, setError } = form;
+
+  const codeValue = watch("code");
+  const selectedAccount = watch("selectedAccount");
+  const { data: codeExists } = useCheckAccountCodeExists(codeValue);
+
+  const onFormSubmit: SubmitHandler<EntryFormInputs> = (data) => {
+    if (
+      codeExists != null &&
+      selectedAccount?.type === AccountAutocompleteSelectionType.Create
+    ) {
+      setError("code", {
+        type: "manual",
+        message: "Code is already taken. Please choose another one.",
+      });
+      return;
+    }
+
+    onSubmit(data);
+  };
 
   return (
     <View>
@@ -69,7 +92,7 @@ const EditEntryForm: FC<{
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleSubmit(onSubmit)(e);
+              handleSubmit(onFormSubmit)(e);
             }}
           >
             <View gap={3}>

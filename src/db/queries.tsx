@@ -322,6 +322,9 @@ export const useAccountsWithBalance = (filterZeroBalance: boolean = false) => {
           name: schema.accounts.name,
           code: schema.accounts.code,
           phone: schema.accounts.phone,
+          deletedAt: schema.accounts.deletedAt,
+          createdAt: schema.accounts.createdAt,
+          updatedAt: schema.accounts.updatedAt,
           entryAmount: schema.entries.amount,
           entryType: schema.entries.type,
         })
@@ -345,6 +348,9 @@ export const useAccountsWithBalance = (filterZeroBalance: boolean = false) => {
           phone: string | null;
           code: string;
           amount: number;
+          deletedAt: string | null;
+          createdAt: string;
+          updatedAt: string;
         }
       >();
 
@@ -358,6 +364,9 @@ export const useAccountsWithBalance = (filterZeroBalance: boolean = false) => {
             code,
             phone,
             amount: 0,
+            deletedAt: row.deletedAt,
+            createdAt: row.createdAt,
+            updatedAt: row.updatedAt,
           });
         }
 
