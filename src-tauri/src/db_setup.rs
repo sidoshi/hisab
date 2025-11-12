@@ -48,6 +48,15 @@ pub async fn get_current_database_path(app: AppHandle) -> Result<Option<String>,
 }
 
 #[tauri::command]
+pub async fn delete_database_path(app: AppHandle) -> Result<(), String> {
+    let store = app
+        .store("store")
+        .map_err(|e| format!("Failed to get store: {}", e))?;
+    store.delete("database_path");
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn create_new_database(app: AppHandle) -> Result<String, String> {
     let (tx, rx) = std::sync::mpsc::channel();
     app.dialog()

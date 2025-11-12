@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { drizzle, SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 import Database from "@tauri-apps/plugin-sql";
 import * as schema from "./schema";
@@ -17,7 +18,7 @@ type Row = {
   values: string[];
 };
 
-type DatabaseContextValue = {
+export type DatabaseContextValue = {
   db: SqliteRemoteDatabase<typeof schema>;
   dbPath: string | null;
   openDb: () => Promise<void>;
@@ -101,6 +102,8 @@ export const DatabaseProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const closeDb = async () => {
     setDbPath(null);
+    await deleteDatabasePath();
+    await getCurrentWindow().destroy();
   };
 
   const value = useMemo(
@@ -140,4 +143,8 @@ async function showDatabaseSelectionDialog() {
 
 async function initializeSQLPlugin() {
   return invoke<void>("initialize_sql_plugin");
+}
+
+async function deleteDatabasePath() {
+  return invoke<void>("delete_database_path");
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useDb } from ".";
+import { DatabaseContextValue, useDb } from ".";
 import { and, asc, count, desc, eq, isNull, like } from "drizzle-orm";
 import {
   AccountInsert,
@@ -316,85 +316,93 @@ export const useAccountsWithBalance = (filterZeroBalance: boolean = false) => {
     queryKey: ["accounts-with-balance"],
     queryFn: async () => {
       // Get all non-deleted accounts with their entries and calculate balances
-      const accountsWithEntries = await db
-        .select({
-          id: schema.accounts.id,
-          name: schema.accounts.name,
-          code: schema.accounts.code,
-          phone: schema.accounts.phone,
-          deletedAt: schema.accounts.deletedAt,
-          createdAt: schema.accounts.createdAt,
-          updatedAt: schema.accounts.updatedAt,
-          entryAmount: schema.entries.amount,
-          entryType: schema.entries.type,
-        })
-        .from(schema.accounts)
-        .leftJoin(
-          schema.entries,
-          and(
-            eq(schema.accounts.id, schema.entries.accountId),
-            isNull(schema.entries.deletedAt)
-          )
-        )
-        .where(isNull(schema.accounts.deletedAt))
-        .orderBy(asc(schema.accounts.name));
-
-      // Group by account and calculate balances
-      const accountBalances = new Map<
-        number,
-        {
-          id: number;
-          name: string;
-          phone: string | null;
-          code: string;
-          amount: number;
-          deletedAt: string | null;
-          createdAt: string;
-          updatedAt: string;
-        }
-      >();
-
-      accountsWithEntries.forEach((row) => {
-        const { id, name, code, entryAmount, entryType, phone } = row;
-
-        if (!accountBalances.has(id)) {
-          accountBalances.set(id, {
-            id,
-            name,
-            code,
-            phone,
-            amount: 0,
-            deletedAt: row.deletedAt,
-            createdAt: row.createdAt,
-            updatedAt: row.updatedAt,
-          });
-        }
-
-        const account = accountBalances.get(id)!;
-
-        // Calculate balance: Add for debit, subtract for credit
-        if (entryAmount !== null) {
-          if (entryType === "debit") {
-            account.amount += entryAmount;
-          } else if (entryType === "credit") {
-            account.amount -= entryAmount;
-          }
-        }
-      });
-
-      // Convert to array and determine the type based on final balance
-      const accountsWithBalance = Array.from(accountBalances.values()).map(
-        (account) => ({
-          ...account,
-          type: account.amount >= 0 ? ("debit" as const) : ("credit" as const),
-        })
-      );
-
-      if (filterZeroBalance) {
-        return accountsWithBalance.filter((account) => account.amount !== 0);
-      }
-
-      return accountsWithBalance;
+      return getAccountsWithBalance(filterZeroBalance, db, schema);
     },
   });
+};
+
+export const getAccountsWithBalance = async (
+  filterZeroBalance: boolean,
+  db: DatabaseContextValue["db"],
+  schema: DatabaseContextValue["schema"]
+) => {
+  const accountsWithEntries = await db
+    .select({
+      id: schema.accounts.id,
+      name: schema.accounts.name,
+      code: schema.accounts.code,
+      phone: schema.accounts.phone,
+      deletedAt: schema.accounts.deletedAt,
+      createdAt: schema.accounts.createdAt,
+      updatedAt: schema.accounts.updatedAt,
+      entryAmount: schema.entries.amount,
+      entryType: schema.entries.type,
+    })
+    .from(schema.accounts)
+    .leftJoin(
+      schema.entries,
+      and(
+        eq(schema.accounts.id, schema.entries.accountId),
+        isNull(schema.entries.deletedAt)
+      )
+    )
+    .where(isNull(schema.accounts.deletedAt))
+    .orderBy(asc(schema.accounts.name));
+
+  // Group by account and calculate balances
+  const accountBalances = new Map<
+    number,
+    {
+      id: number;
+      name: string;
+      phone: string | null;
+      code: string;
+      amount: number;
+      deletedAt: string | null;
+      createdAt: string;
+      updatedAt: string;
+    }
+  >();
+
+  accountsWithEntries.forEach((row) => {
+    const { id, name, code, entryAmount, entryType, phone } = row;
+
+    if (!accountBalances.has(id)) {
+      accountBalances.set(id, {
+        id,
+        name,
+        code,
+        phone,
+        amount: 0,
+        deletedAt: row.deletedAt,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      });
+    }
+
+    const account = accountBalances.get(id)!;
+
+    // Calculate balance: Add for debit, subtract for credit
+    if (entryAmount !== null) {
+      if (entryType === "debit") {
+        account.amount += entryAmount;
+      } else if (entryType === "credit") {
+        account.amount -= entryAmount;
+      }
+    }
+  });
+
+  // Convert to array and determine the type based on final balance
+  const accountsWithBalance = Array.from(accountBalances.values()).map(
+    (account) => ({
+      ...account,
+      type: account.amount >= 0 ? ("debit" as const) : ("credit" as const),
+    })
+  );
+
+  if (filterZeroBalance) {
+    return accountsWithBalance.filter((account) => account.amount !== 0);
+  }
+
+  return accountsWithBalance;
 };

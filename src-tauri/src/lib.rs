@@ -37,6 +37,7 @@ async fn save_pdf_file(
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
@@ -47,6 +48,7 @@ pub fn run() {
             db_setup::get_current_database_path,
             db_setup::show_database_selection_dialog,
             db_setup::initialize_sql_plugin,
+            db_setup::delete_database_path,
             save_pdf_file
         ])
         .run(tauri::generate_context!())

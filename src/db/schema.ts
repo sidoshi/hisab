@@ -20,6 +20,10 @@ export const accounts = sqliteTable("accounts", {
 export type Account = typeof accounts.$inferSelect;
 export type AccountInsert = typeof accounts.$inferInsert;
 export type AccountUpdate = Partial<AccountInsert>;
+export type AccountWithBalance = Account & {
+  amount: number;
+  type: "debit" | "credit";
+};
 
 export const entries = sqliteTable("entries", {
   id: int().primaryKey({ autoIncrement: true }),
