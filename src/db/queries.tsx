@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDb } from ".";
-import { and, count, desc, eq, isNull, like } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull, like } from "drizzle-orm";
 import { AccountInsert, EntryInsert } from "./schema";
 
 export const usePaginatedAccounts = (
@@ -18,7 +18,7 @@ export const usePaginatedAccounts = (
         .limit(pageSize)
         .offset(page * pageSize)
         .where(isNull(schema.accounts.deletedAt))
-        .orderBy(desc(schema.accounts.createdAt))
+        .orderBy(asc(schema.accounts.name))
         .all();
 
       const totalAccounts = await db
@@ -206,6 +206,8 @@ export const useDeleteEntry = () => {
         .where(eq(schema.entries.id, entryId));
 
       queryClient.invalidateQueries({ queryKey: ["entries-paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["account-with-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts-with-balance"] });
     },
   });
 };
@@ -256,7 +258,7 @@ export const useAccountWithEntries = (accountId: number) => {
   });
 };
 
-export const useAccountsWithBalance = () => {
+export const useAccountsWithBalance = (filterZeroBalance: boolean = false) => {
   const { db, schema } = useDb();
 
   return useQuery({
@@ -280,7 +282,7 @@ export const useAccountsWithBalance = () => {
           )
         )
         .where(isNull(schema.accounts.deletedAt))
-        .all();
+        .orderBy(asc(schema.accounts.name));
 
       // Group by account and calculate balances
       const accountBalances = new Map<
@@ -318,10 +320,18 @@ export const useAccountsWithBalance = () => {
       });
 
       // Convert to array and determine the type based on final balance
-      return Array.from(accountBalances.values()).map((account) => ({
-        ...account,
-        type: account.amount >= 0 ? ("debit" as const) : ("credit" as const),
-      }));
+      const accountsWithBalance = Array.from(accountBalances.values()).map(
+        (account) => ({
+          ...account,
+          type: account.amount >= 0 ? ("debit" as const) : ("credit" as const),
+        })
+      );
+
+      if (filterZeroBalance) {
+        return accountsWithBalance.filter((account) => account.amount !== 0);
+      }
+
+      return accountsWithBalance;
     },
   });
 };

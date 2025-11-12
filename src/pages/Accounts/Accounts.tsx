@@ -1,11 +1,26 @@
 import { useAccountsWithBalance } from "@/db/queries";
 import { toLocaleString } from "@/utils";
 import { Link } from "@tanstack/react-router";
-import { FC } from "react";
-import { Card, Divider, Loader, Table, Text, View } from "reshaped";
+import { FC, useEffect, useState } from "react";
+import {
+  Card,
+  Checkbox,
+  Divider,
+  FormControl,
+  Loader,
+  Table,
+  Text,
+  View,
+} from "reshaped";
 
 export const Accounts: FC = () => {
-  const { data, isLoading } = useAccountsWithBalance();
+  const [filterZeroBalance, setFilterZeroBalance] = useState(false);
+  const { data, isLoading, refetch } =
+    useAccountsWithBalance(filterZeroBalance);
+
+  useEffect(() => {
+    refetch();
+  }, [filterZeroBalance, refetch]);
 
   if (isLoading) {
     return (
@@ -29,49 +44,63 @@ export const Accounts: FC = () => {
 
       <Divider />
 
-      <Card elevated padding={0}>
-        <Table>
-          <Table.Row highlighted>
-            <Table.Heading>ID</Table.Heading>
-            <Table.Heading>Account</Table.Heading>
-            <Table.Heading>Code</Table.Heading>
-            <Table.Heading>Balance</Table.Heading>
-          </Table.Row>
-
-          {data?.map((account) => (
-            <Table.Row key={account.id}>
-              <Table.Cell>
-                <View>
-                  <Text>{account.id}</Text>
-                </View>
-              </Table.Cell>
-              <Table.Cell>
-                <View>
-                  <Link to={`/accounts/${account.id}`}>
-                    <Text>{account.name}</Text>
-                  </Link>
-                </View>
-              </Table.Cell>
-              <Table.Cell>
-                <View>
-                  <Text>{account.code}</Text>
-                </View>
-              </Table.Cell>
-              <Table.Cell>
-                <View>
-                  <Text
-                    color={account.type === "debit" ? "positive" : "critical"}
-                    weight="bold"
-                  >
-                    {account.type === "debit" ? "+ " : "- "}
-                    {toLocaleString(account.amount)}
-                  </Text>
-                </View>
-              </Table.Cell>
+      <View>
+        <View direction="row" align="center" justify="end" padding={2} gap={2}>
+          <FormControl>
+            <Checkbox
+              name="filterZeroBalance"
+              checked={filterZeroBalance}
+              onChange={({ checked }) => {
+                setFilterZeroBalance(checked);
+              }}
+            />
+          </FormControl>
+          <FormControl.Label>Filter 0 Balance Accounts</FormControl.Label>
+        </View>
+        <Card elevated padding={0}>
+          <Table>
+            <Table.Row highlighted>
+              <Table.Heading>ID</Table.Heading>
+              <Table.Heading>Account</Table.Heading>
+              <Table.Heading>Code</Table.Heading>
+              <Table.Heading>Balance</Table.Heading>
             </Table.Row>
-          ))}
-        </Table>
-      </Card>
+
+            {data?.map((account) => (
+              <Table.Row key={account.id}>
+                <Table.Cell>
+                  <View>
+                    <Text>{account.id}</Text>
+                  </View>
+                </Table.Cell>
+                <Table.Cell>
+                  <View>
+                    <Link to={`/accounts/${account.id}`}>
+                      <Text>{account.name}</Text>
+                    </Link>
+                  </View>
+                </Table.Cell>
+                <Table.Cell>
+                  <View>
+                    <Text>{account.code}</Text>
+                  </View>
+                </Table.Cell>
+                <Table.Cell>
+                  <View>
+                    <Text
+                      color={account.type === "debit" ? "positive" : "critical"}
+                      weight="bold"
+                    >
+                      {account.type === "debit" ? "+ " : "- "}
+                      {toLocaleString(account.amount)}
+                    </Text>
+                  </View>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table>
+        </Card>
+      </View>
     </View>
   );
 };
