@@ -14,7 +14,7 @@ import {
 } from "reshaped";
 
 export const Accounts: FC = () => {
-  const [filterZeroBalance, setFilterZeroBalance] = useState(false);
+  const [filterZeroBalance, setFilterZeroBalance] = useState(true);
   const { data, isLoading, refetch } =
     useAccountsWithBalance(filterZeroBalance);
 

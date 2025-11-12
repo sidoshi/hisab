@@ -13,7 +13,7 @@ import {
 
 import { Account, Entry } from "@/db/schema";
 import { Link } from "@tanstack/react-router";
-import { toLocaleString } from "@/utils";
+import { toLocaleFormattedDate, toLocaleString } from "@/utils";
 
 type TimelineEntry = Omit<Entry, "accountId"> & {
   account: Account | null;
@@ -36,6 +36,16 @@ export const EntriesTimeline: FC<EntriesTimelineProps> = ({
   pagination,
   setDeleteEntryId,
 }) => {
+  if (entries.length === 0 && (pagination == null || pagination.total === 0)) {
+    return (
+      <View height="40vh" padding={8} align="center" justify="center">
+        <Text variant="body-1" color="neutral">
+          No entries found.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View paddingInline={8} gap={8}>
       <Timeline>
@@ -56,7 +66,9 @@ export const EntriesTimeline: FC<EntriesTimelineProps> = ({
                       {entry.type.toUpperCase()}
                     </Badge>
 
-                    <Badge variant="outline">{entry.createdAt}</Badge>
+                    <Badge variant="outline">
+                      {toLocaleFormattedDate(entry.createdAt)}
+                    </Badge>
                   </View>
 
                   <View gap={1} justify="end" direction="row">

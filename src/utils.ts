@@ -4,3 +4,12 @@ export const toLocaleString = (amount: number) => {
     maximumFractionDigits: 2,
   });
 };
+
+export const toLocaleFormattedDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};

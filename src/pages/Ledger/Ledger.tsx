@@ -1,11 +1,27 @@
 import { useAccountsWithBalance } from "@/db/queries";
 import { toLocaleString } from "@/utils";
 import { Link } from "@tanstack/react-router";
-import { FC } from "react";
-import { View, Text, Table, Grid, Loader, Divider, Card } from "reshaped";
+import { FC, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  Table,
+  Grid,
+  Loader,
+  Divider,
+  Card,
+  Checkbox,
+  FormControl,
+} from "reshaped";
 
 export const Ledger: FC = () => {
-  const { data, isLoading } = useAccountsWithBalance();
+  const [filterZeroBalance, setFilterZeroBalance] = useState(true);
+  const { data, isLoading, refetch } =
+    useAccountsWithBalance(filterZeroBalance);
+
+  useEffect(() => {
+    refetch();
+  }, [filterZeroBalance]);
 
   if (isLoading) {
     return (
@@ -45,6 +61,19 @@ export const Ledger: FC = () => {
       </Card>
 
       <Divider />
+
+      <View direction="row" align="center" justify="end" padding={2} gap={2}>
+        <FormControl>
+          <Checkbox
+            name="filterZeroBalance"
+            checked={filterZeroBalance}
+            onChange={({ checked }) => {
+              setFilterZeroBalance(checked);
+            }}
+          />
+        </FormControl>
+        <FormControl.Label>Filter 0 Balance Accounts</FormControl.Label>
+      </View>
 
       <Grid columns="1fr 1fr" rows="1fr" gap={2}>
         <Card elevated padding={0}>
