@@ -96,7 +96,7 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
   useEffect(() => {
     clearErrors("code");
     if (
-      codeExists &&
+      codeExists != null &&
       selectedAccount?.type === AccountAutocompleteSelectionType.Create
     ) {
       setError("code", {

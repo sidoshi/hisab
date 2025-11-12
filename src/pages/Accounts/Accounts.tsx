@@ -1,5 +1,7 @@
 import { DeleteAccountModal } from "@/components/DeleteAccountModal";
+import { EditAccountModal } from "@/components/EditAccountModal";
 import { useAccountsWithBalance } from "@/db/queries";
+import { Account } from "@/db/schema";
 import { toLocaleString } from "@/utils";
 import { Link } from "@tanstack/react-router";
 import { FC, useEffect, useState } from "react";
@@ -18,6 +20,8 @@ import {
 
 export const Accounts: FC = () => {
   const [deleteAccountId, setDeleteAccountId] = useState<number | null>(null);
+  const [editAccount, setEditAccount] = useState<Account | null>(null);
+
   const [filterZeroBalance, setFilterZeroBalance] = useState(true);
   const { data, isLoading, refetch } =
     useAccountsWithBalance(filterZeroBalance);
@@ -110,7 +114,11 @@ export const Accounts: FC = () => {
 
                 <Table.Cell align="end" width="80px">
                   <View width="80px" gap={2} direction="row" justify="end">
-                    <Button size="small" icon={Edit}></Button>
+                    <Button
+                      size="small"
+                      onClick={() => setEditAccount(account)}
+                      icon={Edit}
+                    ></Button>
                     <Button
                       size="small"
                       color="critical"
@@ -128,6 +136,11 @@ export const Accounts: FC = () => {
       <DeleteAccountModal
         deleteAccountId={deleteAccountId}
         onClose={() => setDeleteAccountId(null)}
+      />
+
+      <EditAccountModal
+        account={editAccount}
+        onClose={() => setEditAccount(null)}
       />
     </View>
   );

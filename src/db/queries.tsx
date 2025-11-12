@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDb } from ".";
 import { and, asc, count, desc, eq, isNull, like } from "drizzle-orm";
-import { AccountInsert, EntryInsert } from "./schema";
+import {
+  AccountInsert,
+  AccountUpdate,
+  EntryInsert,
+  EntryUpdate,
+} from "./schema";
 
 export const usePaginatedAccounts = (
   page: number = 0,
@@ -96,6 +101,31 @@ export const useDeleteAccount = () => {
   });
 };
 
+export const useUpdateAccount = () => {
+  const { db, schema } = useDb();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      accountId,
+      accountUpdate,
+    }: {
+      accountId: number;
+      accountUpdate: AccountUpdate;
+    }) => {
+      await db
+        .update(schema.accounts)
+        .set({ ...accountUpdate, updatedAt: new Date().toISOString() })
+        .where(eq(schema.accounts.id, accountId));
+
+      queryClient.invalidateQueries({ queryKey: ["accounts-paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["entries-paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts-with-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["account-with-balance"] });
+    },
+  });
+};
+
 export const useCheckAccountCodeExists = (code: string | null) => {
   const { db, schema } = useDb();
 
@@ -105,15 +135,10 @@ export const useCheckAccountCodeExists = (code: string | null) => {
       const account = await db
         .select()
         .from(schema.accounts)
-        .where(
-          and(
-            eq(schema.accounts.code, code!),
-            isNull(schema.accounts.deletedAt)
-          )
-        )
+        .where(eq(schema.accounts.code, code!))
         .get();
 
-      return !!account;
+      return account || null;
     },
     enabled: code != null && code.length > 0,
   });
@@ -205,7 +230,7 @@ export const useUpdateEntry = () => {
       entryUpdate,
     }: {
       entryId: number;
-      entryUpdate: Partial<EntryInsert>;
+      entryUpdate: EntryUpdate;
     }) => {
       await db
         .update(schema.entries)
