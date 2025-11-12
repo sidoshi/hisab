@@ -85,7 +85,7 @@ export const DBSettings: FC = () => {
     await writeFile(filePath, snapshotJSON);
 
     toast.show({
-      title: `Snapshot saved to ${filePath}`,
+      title: `Snapshot saved`,
       color: "positive",
       icon: <CheckCircle />,
     });
@@ -160,7 +160,7 @@ export const DBSettings: FC = () => {
     }
 
     toast.show({
-      title: `Snapshot restored from ${file}`,
+      title: `Snapshot restored`,
       color: "positive",
       icon: <CheckCircle />,
     });
@@ -207,7 +207,7 @@ export const DBSettings: FC = () => {
 
             {dbPath != null && (
               <Button variant="outline" color="critical" onClick={closeDb}>
-                Close Database and Exit
+                Close Database and Restart
               </Button>
             )}
           </View>

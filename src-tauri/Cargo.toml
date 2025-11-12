@@ -29,3 +29,4 @@ sqlx = { version = "0.8.6", features = ["sqlite", "runtime-tokio-native-tls"] }
 tokio = { version = "1", features = ["full"] }
 tauri-plugin-store = "2"
 tauri-plugin-fs = "2"
+tauri-plugin-process = "2"

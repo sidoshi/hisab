@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { relaunch } from "@tauri-apps/plugin-process";
 import { drizzle, SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 import Database from "@tauri-apps/plugin-sql";
 import * as schema from "./schema";
@@ -103,7 +103,7 @@ export const DatabaseProvider: FC<PropsWithChildren> = ({ children }) => {
   const closeDb = async () => {
     setDbPath(null);
     await deleteDatabasePath();
-    await getCurrentWindow().destroy();
+    relaunch();
   };
 
   const value = useMemo(
