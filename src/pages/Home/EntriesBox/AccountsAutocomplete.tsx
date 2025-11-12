@@ -121,7 +121,12 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
   };
 
   const addNewOption = (
-    <Autocomplete.Item key={text} value={text} data={create(text)}>
+    <Autocomplete.Item
+      className="autocomplete-item"
+      key={text}
+      value={text}
+      data={create(text)}
+    >
       Add New: "{text}"
     </Autocomplete.Item>
   );
@@ -143,11 +148,18 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
             onChange={({ value }) => {
               setText(value.toUpperCase());
             }}
-            onBlur={() => {
+            onBlur={(e) => {
+              if (
+                e.relatedTarget?.className.includes("autocomplete-item") &&
+                e.relatedTarget?.role === "option"
+              ) {
+                return;
+              }
+
               if (selectedAccount == null) {
                 setText("");
               }
-              if (text !== selectedAccount) {
+              if (text !== selectedAccount?.account?.name) {
                 setText(selectedAccount?.account?.name || "");
               }
             }}
@@ -165,6 +177,7 @@ export const AccountAutocomplete: FC<AccountsAutocompleteProps> = ({
                 key={option.id}
                 value={option.name}
                 data={existing(option)}
+                className="autocomplete-item"
               >
                 <MenuItem>
                   {option.name} ({option.code})
