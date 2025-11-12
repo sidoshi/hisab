@@ -170,9 +170,17 @@ export const EntriesBox: FC = () => {
 
               <FormControl>
                 <FormControl.Label>Notes</FormControl.Label>
-                <TextArea
+                <Controller
                   name="notes"
-                  placeholder="Optionally add any extra notes"
+                  control={form.control}
+                  render={({ field }) => (
+                    <TextArea
+                      {...field}
+                      onChange={({ value }) => field.onChange(value)}
+                      name="notes"
+                      placeholder="Optionally add any extra notes"
+                    />
+                  )}
                 />
               </FormControl>
 

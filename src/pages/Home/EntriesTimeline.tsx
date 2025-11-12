@@ -11,18 +11,15 @@ import {
   View,
 } from "reshaped";
 
-import { Account, Entry } from "@/db/schema";
+import { EntryWithAccount } from "@/db/schema";
 import { Link } from "@tanstack/react-router";
 import { toLocaleFormattedDate, toLocaleString } from "@/utils";
 
-type TimelineEntry = Omit<Entry, "accountId"> & {
-  account: Account | null;
-};
-
 type EntriesTimelineProps = {
-  entries: TimelineEntry[];
+  entries: EntryWithAccount[];
 
   setDeleteEntryId?: (id: number) => void;
+  setEditEntry?: (entry: EntryWithAccount) => void;
 
   pagination?: {
     total: number;
@@ -35,6 +32,7 @@ export const EntriesTimeline: FC<EntriesTimelineProps> = ({
   entries,
   pagination,
   setDeleteEntryId,
+  setEditEntry,
 }) => {
   if (entries.length === 0 && (pagination == null || pagination.total === 0)) {
     return (
@@ -72,7 +70,11 @@ export const EntriesTimeline: FC<EntriesTimelineProps> = ({
                   </View>
 
                   <View gap={1} justify="end" direction="row">
-                    <Button size="small" icon={<Edit />}></Button>
+                    <Button
+                      onClick={() => setEditEntry?.(entry)}
+                      size="small"
+                      icon={<Edit />}
+                    ></Button>
                     <Button
                       onClick={() => setDeleteEntryId?.(entry.id)}
                       size="small"

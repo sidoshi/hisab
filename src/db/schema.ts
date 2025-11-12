@@ -43,3 +43,6 @@ export const entries = sqliteTable("entries", {
 export type Entry = typeof entries.$inferSelect;
 export type EntryInsert = typeof entries.$inferInsert;
 export type EntryUpdate = Partial<EntryInsert>;
+export type EntryWithAccount = Omit<Entry, "accountId"> & {
+  account: Account | null;
+};

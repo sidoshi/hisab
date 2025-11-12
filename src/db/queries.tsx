@@ -194,6 +194,31 @@ export const useInsertEntry = () => {
   });
 };
 
+export const useUpdateEntry = () => {
+  const { db, schema } = useDb();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      entryId,
+      entryUpdate,
+    }: {
+      entryId: number;
+      entryUpdate: Partial<EntryInsert>;
+    }) => {
+      console.log("entryUpdate", entryUpdate);
+      await db
+        .update(schema.entries)
+        .set({ ...entryUpdate, updatedAt: new Date().toISOString() })
+        .where(eq(schema.entries.id, entryId));
+
+      queryClient.invalidateQueries({ queryKey: ["entries-paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["account-with-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts-with-balance"] });
+    },
+  });
+};
+
 export const useDeleteEntry = () => {
   const { db, schema } = useDb();
   const queryClient = useQueryClient();
@@ -243,6 +268,7 @@ export const useAccountWithEntries = (accountId: number) => {
             isNull(schema.entries.deletedAt)
           )
         )
+        .orderBy(desc(schema.entries.createdAt))
         .all();
 
       const balance = entries.reduce((acc, entry) => {

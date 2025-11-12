@@ -5,11 +5,15 @@ import { useAccountWithEntries } from "@/db/queries";
 import { toLocaleString } from "@/utils";
 import { EntriesTimeline } from "../Home/EntriesTimeline";
 import { DeleteEntryModal } from "@/components/DeleteEntryModal";
+import { EditEntryModal } from "@/components/EditEntryModal";
+import { EntryWithAccount } from "@/db/schema";
 
 export const AccountDetails: FC = () => {
   const { accountId } = useParams({ strict: false });
   const { data, isLoading } = useAccountWithEntries(accountId);
+
   const [deleteEntryId, setDeleteEntryId] = useState<number | null>(null);
+  const [editEntry, setEditEntry] = useState<EntryWithAccount | null>(null);
 
   if (isLoading || data == null) {
     return (
@@ -44,12 +48,15 @@ export const AccountDetails: FC = () => {
       <EntriesTimeline
         entries={entriesWithAccount}
         setDeleteEntryId={setDeleteEntryId}
+        setEditEntry={setEditEntry}
       />
 
       <DeleteEntryModal
         deleteEntryId={deleteEntryId}
         onClose={() => setDeleteEntryId(null)}
       />
+
+      <EditEntryModal entry={editEntry} onClose={() => setEditEntry(null)} />
     </View>
   );
 };
