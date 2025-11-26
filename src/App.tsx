@@ -8,6 +8,7 @@ import { Link, Outlet } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { colorModeAtom, toggleColorModeAtom } from "./atoms/theme";
 import { useQueryClient } from "@tanstack/react-query";
+import { TelegramBot } from "./components/TelegramBot";
 
 const Layout: FC = () => {
   const colorMode = useAtomValue(colorModeAtom);
@@ -75,6 +76,8 @@ const Layout: FC = () => {
             variant="ghost"
             icon={<RefreshCw />}
           />
+
+          <TelegramBot />
         </View>
       </View>
 
