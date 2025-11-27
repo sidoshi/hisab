@@ -4,6 +4,7 @@ import { Radio } from "react-feather";
 import { Bot } from "grammy";
 import { setupBot } from "@/bot";
 import { LazyStore } from "@tauri-apps/plugin-store";
+import { useDb } from "@/db";
 
 type TelegramAPIKeyDialogFormProps = {
   apiKey?: string;
@@ -41,6 +42,7 @@ const TelegramAPIKeyDialogForm: FC<TelegramAPIKeyDialogFormProps> = ({
 
 const useTelegramBot = (apiKey?: string) => {
   const [isBotRunning, setIsBotRunning] = useState(false);
+  const { db, schema } = useDb();
 
   useEffect(() => {
     if (!apiKey) {
@@ -49,7 +51,7 @@ const useTelegramBot = (apiKey?: string) => {
 
     const bot = new Bot(apiKey);
 
-    setupBot(bot);
+    setupBot(bot, db, schema);
 
     bot.start().catch((error) => {
       console.error("Failed to start Telegram bot:", error);

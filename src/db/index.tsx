@@ -18,18 +18,21 @@ type Row = {
   values: string[];
 };
 
+export type DB = SqliteRemoteDatabase<typeof schema>;
+export type Schema = typeof schema;
+
 export type DatabaseContextValue = {
-  db: SqliteRemoteDatabase<typeof schema>;
+  db: DB;
   dbPath: string | null;
   openDb: () => Promise<void>;
   selectingDb: boolean;
   closeDb: () => Promise<void>;
-  schema: typeof schema;
+  schema: Schema;
 };
 
 const DatabaseContext = createContext<DatabaseContextValue | null>(null);
 
-const db = drizzle<typeof schema>(
+const db = drizzle<Schema>(
   async (sql, params, method) => {
     try {
       const rows = await invoke<Row[]>("run_sql", {
