@@ -16,6 +16,7 @@ import {
   Checkbox,
   FormControl,
   Button,
+  ScrollArea,
 } from "reshaped";
 import { PDFLedger } from "./PDFLedger";
 
@@ -128,84 +129,86 @@ export const Ledger: FC = () => {
         <FormControl.Label>Filter 0 Balance Accounts</FormControl.Label>
       </View>
 
-      <Card elevated padding={0}>
-        <Table>
-          <Table.Row highlighted>
-            <Table.Heading>Account</Table.Heading>
-            <Table.Heading>Debit</Table.Heading>
-            <Table.Heading>Account</Table.Heading>
-            <Table.Heading>Credit</Table.Heading>
-          </Table.Row>
-
-          {rows.map(([debitAccount, creditAccount], index) => (
-            <Table.Row key={index}>
-              {debitAccount ? (
-                <>
-                  <Table.Cell>
-                    <View>
-                      <Link to={`/accounts/${debitAccount.id}`}>
-                        <Text>{debitAccount.name}</Text>
-                      </Link>
-                    </View>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text variant="featured-3" color="positive">
-                      + {toLocaleString(debitAccount.amount)}
-                    </Text>
-                  </Table.Cell>
-                </>
-              ) : (
-                <>
-                  <Table.Cell></Table.Cell>
-                  <Table.Cell></Table.Cell>
-                </>
-              )}
-
-              {creditAccount ? (
-                <>
-                  <Table.Cell>
-                    <View>
-                      <Link to={`/accounts/${creditAccount.id}`}>
-                        <Text>{creditAccount.name}</Text>
-                      </Link>
-                    </View>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text variant="featured-3" color="positive">
-                      + {toLocaleString(creditAccount.amount)}
-                    </Text>
-                  </Table.Cell>
-                </>
-              ) : (
-                <>
-                  <Table.Cell></Table.Cell>
-                  <Table.Cell></Table.Cell>
-                </>
-              )}
+      <ScrollArea height="calc(100vh - 290px)">
+        <Card elevated padding={0}>
+          <Table>
+            <Table.Row highlighted>
+              <Table.Heading>Account</Table.Heading>
+              <Table.Heading>Debit</Table.Heading>
+              <Table.Heading>Account</Table.Heading>
+              <Table.Heading>Credit</Table.Heading>
             </Table.Row>
-          ))}
 
-          <Table.Row>
-            <Table.Cell>
-              <Text weight="bold">Total</Text>
-            </Table.Cell>
-            <Table.Cell>
-              <Text variant="featured-2" weight="bold" color="positive">
-                + {toLocaleString(debitTotal)}
-              </Text>
-            </Table.Cell>
+            {rows.map(([debitAccount, creditAccount], index) => (
+              <Table.Row key={index}>
+                {debitAccount ? (
+                  <>
+                    <Table.Cell>
+                      <View>
+                        <Link to={`/accounts/${debitAccount.id}`}>
+                          <Text>{debitAccount.name}</Text>
+                        </Link>
+                      </View>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Text variant="featured-3" color="positive">
+                        + {toLocaleString(debitAccount.amount)}
+                      </Text>
+                    </Table.Cell>
+                  </>
+                ) : (
+                  <>
+                    <Table.Cell></Table.Cell>
+                    <Table.Cell></Table.Cell>
+                  </>
+                )}
 
-            <Table.Cell>
-              <Text weight="bold">Total</Text>
-            </Table.Cell>
-            <Table.Cell>
-              <Text variant="featured-2" weight="bold" color="critical">
-                - {toLocaleString(creditTotal)}
-              </Text>
-            </Table.Cell>
-          </Table.Row>
-        </Table>
-      </Card>
+                {creditAccount ? (
+                  <>
+                    <Table.Cell>
+                      <View>
+                        <Link to={`/accounts/${creditAccount.id}`}>
+                          <Text>{creditAccount.name}</Text>
+                        </Link>
+                      </View>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Text variant="featured-3" color="critical">
+                        - {toLocaleString(creditAccount.amount)}
+                      </Text>
+                    </Table.Cell>
+                  </>
+                ) : (
+                  <>
+                    <Table.Cell></Table.Cell>
+                    <Table.Cell></Table.Cell>
+                  </>
+                )}
+              </Table.Row>
+            ))}
+
+            <Table.Row>
+              <Table.Cell>
+                <Text weight="bold">Total</Text>
+              </Table.Cell>
+              <Table.Cell>
+                <Text variant="featured-2" weight="bold" color="positive">
+                  + {toLocaleString(debitTotal)}
+                </Text>
+              </Table.Cell>
+
+              <Table.Cell>
+                <Text weight="bold">Total</Text>
+              </Table.Cell>
+              <Table.Cell>
+                <Text variant="featured-2" weight="bold" color="critical">
+                  - {toLocaleString(creditTotal)}
+                </Text>
+              </Table.Cell>
+            </Table.Row>
+          </Table>
+        </Card>
+      </ScrollArea>
     </View>
   );
 };

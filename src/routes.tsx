@@ -2,6 +2,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  createBrowserHistory,
 } from "@tanstack/react-router";
 import App from "./App";
 
@@ -39,6 +40,11 @@ const routeTree = rootRoute.addChildren([
   ]),
 ]);
 
+// Try browser history for better back/forward support
+const browserHistory = createBrowserHistory();
+
 export const router = createRouter({
   routeTree,
+  history: browserHistory,
+  defaultPreload: "intent",
 });

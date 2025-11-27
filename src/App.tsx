@@ -8,6 +8,7 @@ import { Link, Outlet } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { colorModeAtom, toggleColorModeAtom } from "./atoms/theme";
 import { useQueryClient } from "@tanstack/react-query";
+import { Navigation } from "./components/Navigation";
 
 const Layout: FC = () => {
   const colorMode = useAtomValue(colorModeAtom);
@@ -34,9 +35,11 @@ const Layout: FC = () => {
         justify="space-between"
       >
         <View padding={4}>
-          <Text variant="featured-2" weight="bold" color="primary">
-            Chandan Hisab
-          </Text>
+          <Link to="/">
+            <Text variant="featured-2" weight="bold" color="primary">
+              Chandan Hisab
+            </Text>
+          </Link>
         </View>
 
         <View padding={4} direction="row" align="center">
@@ -78,7 +81,10 @@ const Layout: FC = () => {
         </View>
       </View>
 
-      <Outlet />
+      <View>
+        <Navigation />
+        <Outlet />
+      </View>
     </View>
   );
 };

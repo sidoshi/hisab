@@ -13,6 +13,7 @@ import {
   Divider,
   FormControl,
   Loader,
+  ScrollArea,
   Table,
   Text,
   View,
@@ -65,72 +66,77 @@ export const Accounts: FC = () => {
           </FormControl>
           <FormControl.Label>Filter 0 Balance Accounts</FormControl.Label>
         </View>
-        <Card elevated padding={0}>
-          <Table>
-            <Table.Row highlighted>
-              <Table.Heading>ID</Table.Heading>
-              <Table.Heading>Account</Table.Heading>
-              <Table.Heading>Code</Table.Heading>
-              <Table.Heading>Phone</Table.Heading>
-              <Table.Heading>Balance</Table.Heading>
-              <Table.Heading></Table.Heading>
-            </Table.Row>
 
-            {data?.map((account) => (
-              <Table.Row key={account.id}>
-                <Table.Cell>
-                  <View>
-                    <Text>{account.id}</Text>
-                  </View>
-                </Table.Cell>
-                <Table.Cell>
-                  <View>
-                    <Link to={`/accounts/${account.id}`}>
-                      <Text>{account.name}</Text>
-                    </Link>
-                  </View>
-                </Table.Cell>
-                <Table.Cell>
-                  <View>
-                    <Text>{account.code}</Text>
-                  </View>
-                </Table.Cell>
-                <Table.Cell>
-                  <View>
-                    <Text>{account.phone || "-"}</Text>
-                  </View>
-                </Table.Cell>
-                <Table.Cell>
-                  <View>
-                    <Text
-                      color={account.type === "debit" ? "positive" : "critical"}
-                      weight="bold"
-                    >
-                      {account.type === "debit" ? "+ " : "- "}
-                      {toLocaleString(account.amount)}
-                    </Text>
-                  </View>
-                </Table.Cell>
-
-                <Table.Cell align="end" width="80px">
-                  <View width="80px" gap={2} direction="row" justify="end">
-                    <Button
-                      size="small"
-                      onClick={() => setEditAccount(account)}
-                      icon={Edit}
-                    ></Button>
-                    <Button
-                      size="small"
-                      color="critical"
-                      onClick={() => setDeleteAccountId(account.id)}
-                      icon={Trash}
-                    ></Button>
-                  </View>
-                </Table.Cell>
+        <ScrollArea height="calc(100vh - 290px)">
+          <Card elevated padding={0}>
+            <Table>
+              <Table.Row highlighted>
+                <Table.Heading>ID</Table.Heading>
+                <Table.Heading>Account</Table.Heading>
+                <Table.Heading>Code</Table.Heading>
+                <Table.Heading>Phone</Table.Heading>
+                <Table.Heading>Balance</Table.Heading>
+                <Table.Heading></Table.Heading>
               </Table.Row>
-            ))}
-          </Table>
-        </Card>
+
+              {data?.map((account) => (
+                <Table.Row key={account.id}>
+                  <Table.Cell>
+                    <View>
+                      <Text>{account.id}</Text>
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <View>
+                      <Link to={`/accounts/${account.id}`}>
+                        <Text>{account.name}</Text>
+                      </Link>
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <View>
+                      <Text>{account.code}</Text>
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <View>
+                      <Text>{account.phone || "-"}</Text>
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <View>
+                      <Text
+                        color={
+                          account.type === "debit" ? "positive" : "critical"
+                        }
+                        weight="bold"
+                      >
+                        {account.type === "debit" ? "+ " : "- "}
+                        {toLocaleString(account.amount)}
+                      </Text>
+                    </View>
+                  </Table.Cell>
+
+                  <Table.Cell align="end" width="80px">
+                    <View width="80px" gap={2} direction="row" justify="end">
+                      <Button
+                        size="small"
+                        onClick={() => setEditAccount(account)}
+                        icon={Edit}
+                      ></Button>
+                      <Button
+                        size="small"
+                        color="critical"
+                        onClick={() => setDeleteAccountId(account.id)}
+                        icon={Trash}
+                      ></Button>
+                    </View>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table>
+          </Card>
+        </ScrollArea>
       </View>
 
       <DeleteAccountModal

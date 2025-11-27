@@ -23,7 +23,7 @@ export const Home: FC = () => {
     <View padding={4}>
       <Grid columns="1fr 2fr" rows="1fr" gap={4}>
         <EntriesBox />
-        <ScrollArea height="calc(100vh - 80px)">
+        <ScrollArea height="calc(100vh - 130px)">
           <EntriesTimeline
             pagination={{
               page,
