@@ -28,12 +28,7 @@ const Layout: FC = () => {
 
   return (
     <View>
-      <View
-        backgroundColor="elevation-base"
-        shadow="overlay"
-        direction="row"
-        justify="space-between"
-      >
+      <View direction="row" justify="space-between">
         <View padding={4}>
           <Link to="/">
             <Text variant="featured-2" weight="bold" color="primary">

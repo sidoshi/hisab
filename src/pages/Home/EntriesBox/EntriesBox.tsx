@@ -153,10 +153,10 @@ export const EntriesBox: FC = () => {
               >
                 <Tabs.List>
                   <Tabs.Item value="debit">
-                    <Text color="positive"> + DEBIT</Text>
+                    <Text color="positive"> + DEBIT જમા</Text>
                   </Tabs.Item>
                   <Tabs.Item value="credit">
-                    <Text color="critical"> - CREDIT</Text>
+                    <Text color="critical"> - CREDIT ઉધાર</Text>
                   </Tabs.Item>
                 </Tabs.List>
               </Tabs>

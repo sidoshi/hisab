@@ -55,7 +55,7 @@ export const PDFLedger: FC<PDFLedgerProps> = ({
             color: "#000",
           }}
         >
-          Debit
+          Debit + જમા
         </th>
         <th
           style={{
@@ -79,7 +79,7 @@ export const PDFLedger: FC<PDFLedgerProps> = ({
             color: "#000",
           }}
         >
-          Credit
+          Credit - ઉધાર
         </th>
       </tr>
     </thead>

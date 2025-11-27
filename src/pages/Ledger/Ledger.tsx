@@ -134,9 +134,9 @@ export const Ledger: FC = () => {
           <Table>
             <Table.Row highlighted>
               <Table.Heading>Account</Table.Heading>
-              <Table.Heading>Debit</Table.Heading>
+              <Table.Heading>Debit + જમા</Table.Heading>
               <Table.Heading>Account</Table.Heading>
-              <Table.Heading>Credit</Table.Heading>
+              <Table.Heading>Credit - ઉધાર</Table.Heading>
             </Table.Row>
 
             {rows.map(([debitAccount, creditAccount], index) => (
